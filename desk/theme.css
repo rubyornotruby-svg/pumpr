@@ -23,10 +23,10 @@
 /* fond : halos violet / citron / rose + grille, comme le site de vente */
 body,body.lite{background:var(--bg)}
 body::before{content:"";position:fixed;inset:-20% -10% auto;height:120vh;pointer-events:none;z-index:0;background:
-  radial-gradient(40% 35% at 85% 0%,rgba(139,92,246,.24),transparent 70%),
-  radial-gradient(35% 30% at 10% 5%,rgba(198,255,61,.10),transparent 70%),
-  radial-gradient(30% 25% at 55% 70%,rgba(255,79,216,.07),transparent 70%)}
-body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 80%)}
+  radial-gradient(40% 35% at 75% 10%,rgba(139,92,246,.28),transparent 70%),
+  radial-gradient(35% 30% at 15% 20%,rgba(198,255,61,.14),transparent 70%),
+  radial-gradient(30% 25% at 60% 60%,rgba(255,79,216,.10),transparent 70%)}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 80%)}
 .aurora,.grain{display:none}
 
 /* logo et titre */

@@ -1,7 +1,7 @@
 /* Pumpr · écran de connexion, configuration et menu du compte (desk) */
 body.locked{overflow:hidden}
 body.locked .app{visibility:hidden}
-.gate{position:fixed;inset:0;z-index:120;overflow-y:auto;background:radial-gradient(45% 40% at 80% 0%,rgba(139,92,246,.25),transparent 70%),radial-gradient(40% 35% at 10% 10%,rgba(198,255,61,.12),transparent 70%),var(--pz-bg);display:flex;flex-direction:column;align-items:center;padding:28px 16px 60px;font-family:var(--pz-body);color:var(--pz-text);transition:opacity .5s var(--pz-ease),visibility .5s}
+.gate{position:fixed;inset:0;z-index:120;overflow-y:auto;background:radial-gradient(40% 35% at 75% 10%,rgba(139,92,246,.28),transparent 70%),radial-gradient(35% 30% at 15% 20%,rgba(198,255,61,.14),transparent 70%),radial-gradient(30% 25% at 60% 60%,rgba(255,79,216,.10),transparent 70%),var(--pz-bg);display:flex;flex-direction:column;align-items:center;padding:28px 16px 60px;font-family:var(--pz-body);color:var(--pz-text);transition:opacity .5s var(--pz-ease),visibility .5s}
 .gate.gone{opacity:0;visibility:hidden;pointer-events:none}
 .gate .g-top{width:min(560px,100%);display:flex;justify-content:space-between;align-items:center;margin-bottom:auto;padding-bottom:28px}
 .gate .g-top a{color:var(--pz-muted);font:600 13px/1 var(--pz-body);text-decoration:none}
