@@ -3,51 +3,91 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pumpr · Mentions légales et CGV</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Manrope:wght@400;500;600;700&display=swap">
+<title>Pumpr · Mentions légales, CGV et confidentialité</title>
+<link rel="stylesheet" href="assets/fonts.css">
 <link rel="stylesheet" href="assets/pumpr.css">
 <style>
+html{scroll-behavior:smooth}
 body{margin:0;background:var(--pz-bg);color:var(--pz-text);font:500 16px/1.7 var(--pz-body)}
-.wrap{width:min(780px,100% - 32px);margin:0 auto;padding:40px 0 80px}
+.wrap{width:min(800px,100% - 32px);margin:0 auto;padding:40px 0 80px}
 h1{font:800 clamp(28px,5vw,40px)/1.1 var(--pz-display);letter-spacing:-.02em;margin:40px 0 10px}
-h2{font:700 20px/1.3 var(--pz-display);margin:40px 0 10px}
+h2{font:800 24px/1.25 var(--pz-display);margin:56px 0 6px;padding-top:12px;border-top:1px solid var(--pz-line);scroll-margin-top:20px}
+h3{font:700 17px/1.35 var(--pz-body);margin:28px 0 6px;color:var(--pz-text)}
 p,li{color:#c3c9dc}
+ul{padding-left:22px}
+a{color:var(--pz-lime)}
 .todo{background:rgba(255,201,77,.14);color:#ffe4a1;border-radius:6px;padding:1px 6px;font-weight:700}
 .warn{padding:16px 18px;margin-top:20px;border-color:rgba(255,201,77,.4)}
+.toc{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 0}
+.upd{color:var(--pz-dim);font-size:14px}
 </style>
 </head>
 <body class="pz">
 <div class="wrap">
-  <a class="pz-logo" href="./"><i>P</i>Pumpr</a>
-  <h1>Mentions légales et conditions de vente</h1>
-  <div class="pz-card warn"><p style="margin:0">Modèle à compléter avant l'ouverture des ventes. Les passages <span class="todo">en jaune</span> dépendent du vendeur officiel. Faites relire ce texte par un professionnel.</p></div>
+  <a class="pz-logo" href="./" style="color:var(--pz-text)"><i>P</i>Pumpr</a>
+  <h1>Informations légales</h1>
+  <p class="upd">Dernière mise à jour : 29 octobre 2026</p>
+  <div class="pz-card warn"><p style="margin:0">Document à compléter et à faire relire par un professionnel avant l'ouverture des ventes. Les passages <span class="todo">en jaune</span> dépendent du vendeur officiel et du prestataire de paiement choisis.</p></div>
+  <nav class="toc" aria-label="Sommaire"><a class="pz-btn pz-btn-sm" href="#mentions">Mentions légales</a><a class="pz-btn pz-btn-sm" href="#cgv">Conditions de vente et d'utilisation</a><a class="pz-btn pz-btn-sm" href="#confidentialite">Confidentialité</a><a class="pz-btn pz-btn-sm" href="#credits">Crédits</a></nav>
 
-  <h2>Éditeur et vendeur</h2>
-  <p>Nom ou raison sociale : <span class="todo">À COMPLÉTER</span><br>Adresse : <span class="todo">À COMPLÉTER</span><br>SIREN / SIRET : <span class="todo">À COMPLÉTER</span><br>Contact : <span class="todo">adresse e-mail</span><br>Directeur de la publication : <span class="todo">À COMPLÉTER</span></p>
-  <p>Paiement traité par : <span class="todo">Lemon Squeezy / Stripe (selon le choix final)</span>.</p>
+  <h2 id="mentions">Mentions légales</h2>
+  <h3>Éditeur et vendeur</h3>
+  <p>Nom ou raison sociale : <span class="todo">À COMPLÉTER</span><br>Forme juridique et capital : <span class="todo">À COMPLÉTER</span><br>Adresse : <span class="todo">À COMPLÉTER</span><br>SIREN / SIRET et RCS : <span class="todo">À COMPLÉTER</span><br>N° de TVA intracommunautaire : <span class="todo">À COMPLÉTER</span><br>Contact : <span class="todo">adresse e-mail</span><br>Directeur de la publication : <span class="todo">À COMPLÉTER</span></p>
+  <h3>Hébergement</h3>
+  <p>GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.<br>Comptes utilisateurs : <span class="todo">Supabase Inc. (à confirmer, région d'hébergement des données)</span>.</p>
+  <h3>Propriété intellectuelle</h3>
+  <p>Le nom Pumpr, le site, le desk, leurs textes, leur design et leur code sont protégés. Toute reproduction ou réutilisation sans autorisation est interdite. Les marques et contenus de tiers (Binance, TradingView, noms de cryptomonnaies) appartiennent à leurs titulaires et sont cités à titre informatif. Pumpr n'est affilié à aucun d'eux.</p>
 
-  <h2>Hébergement</h2>
-  <p>Site hébergé par GitHub Pages (GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis).</p>
+  <h2 id="cgv">Conditions générales de vente et d'utilisation</h2>
+  <h3>1. Objet</h3>
+  <p>Ces conditions encadrent la vente et l'utilisation de Pumpr, un logiciel en ligne d'organisation et d'analyse de trades (journal, calcul du risque, graphiques et cours de marché). Elles s'appliquent à tout achat et à toute utilisation du desk.</p>
+  <h3>2. Ce que Pumpr n'est pas</h3>
+  <p>Pumpr ne fournit aucun conseil en investissement, aucune recommandation personnalisée et aucun signal d'achat ou de vente. Il ne passe aucun ordre, ne se connecte à aucun compte de courtage et ne détient jamais de fonds. Les calculs (taille de position, statistiques) sont indicatifs et reposent sur les informations saisies par l'utilisateur.</p>
+  <h3>3. Avertissement sur les risques</h3>
+  <p>Le trading d'actifs financiers et de cryptomonnaies comporte un risque élevé de perte, pouvant aller jusqu'à la totalité du capital investi. Les performances passées ne préjugent pas des performances futures. L'utilisateur prend seul ses décisions d'investissement et en assume les conséquences.</p>
+  <h3>4. Accès et compte</h3>
+  <p>L'achat donne accès au desk Pumpr pour un compte personnel, créé avec l'adresse e-mail utilisée lors du paiement. Le compte est strictement personnel : il ne peut être ni partagé, ni revendu, ni cédé. L'utilisateur garde ses identifiants confidentiels. En cas de fraude, de partage du compte, de contestation abusive du paiement ou d'usage contraire à ces conditions, l'accès peut être suspendu ou retiré.</p>
+  <h3>5. Prix et paiement</h3>
+  <p>Le prix est indiqué en euros TTC sur le site au moment de l'achat. Il s'agit d'un paiement unique, sans abonnement. Le paiement est encaissé par <span class="todo">nom du prestataire de paiement</span>, qui délivre le reçu ou la facture.</p>
+  <h3>6. Fourniture du service</h3>
+  <p>L'accès est fourni dès la confirmation du paiement, par la création du compte sur le desk. Le desk fonctionne dans un navigateur récent connecté à Internet.</p>
+  <h3>7. Droit de rétractation</h3>
+  <p>Le consommateur dispose en principe de 14 jours pour se rétracter. Pour un contenu numérique fourni sans support matériel, ce droit ne s'applique plus si l'exécution a commencé avec son accord préalable exprès et s'il a reconnu perdre son droit de rétractation (article L221-28, 13° du Code de la consommation). Cet accord est recueilli au moment du paiement. <span class="todo">Politique de remboursement choisie, par exemple : remboursement sur demande sous 14 jours si le compte n'a pas été créé.</span></p>
+  <h3>8. Garantie légale de conformité</h3>
+  <p>Le vendeur répond des défauts de conformité du contenu numérique dans les conditions des articles L224-25-12 et suivants du Code de la consommation. Toute réclamation peut être adressée au contact indiqué dans les mentions légales.</p>
+  <h3>9. Disponibilité et évolutions</h3>
+  <p>Le vendeur fait ses meilleurs efforts pour que le desk soit accessible, sans garantir une disponibilité permanente (maintenance, panne, service tiers indisponible). Les cours et graphiques proviennent de services tiers (Binance, TradingView, Open-Meteo) : ils peuvent être différés, inexacts ou interrompus, et le vendeur ne peut en garantir l'exactitude. Le desk peut évoluer, sans retirer ses fonctions essentielles décrites au moment de l'achat.</p>
+  <h3>10. Responsabilité</h3>
+  <p>Dans les limites permises par la loi, le vendeur n'est pas responsable des décisions de trading de l'utilisateur, des pertes financières qui en résultent, ni des erreurs ou interruptions des données fournies par des tiers. Le journal de trades étant stocké dans le navigateur de l'utilisateur, il appartient à celui-ci d'en faire des exports réguliers.</p>
+  <h3>11. Médiation de la consommation</h3>
+  <p>En cas de litige non résolu, le consommateur peut recourir gratuitement au médiateur de la consommation : <span class="todo">nom et site du médiateur</span>. Il peut aussi utiliser la plateforme européenne de règlement en ligne des litiges.</p>
+  <h3>12. Droit applicable</h3>
+  <p>Ces conditions sont soumises au droit français. À défaut d'accord amiable, le litige est porté devant les tribunaux compétents selon les règles de droit commun.</p>
 
-  <h2>Le produit</h2>
-  <p>Pumpr est un logiciel en ligne d'organisation et d'analyse de trades : journal, calcul du risque, graphiques et cours de marché. L'achat donne accès au desk Pumpr pour un compte personnel, créé avec l'adresse e-mail utilisée lors du paiement.</p>
-  <p>Pumpr ne passe aucun ordre, ne se connecte à aucun compte de courtage et ne fournit aucun conseil en investissement, recommandation ni signal d'achat ou de vente. Les cours proviennent de services tiers (Binance, TradingView) et peuvent être différés ou indisponibles.</p>
+  <h2 id="confidentialite">Politique de confidentialité</h2>
+  <h3>Responsable du traitement</h3>
+  <p><span class="todo">Nom du vendeur</span>, joignable à <span class="todo">adresse e-mail</span>.</p>
+  <h3>Données collectées et finalités</h3>
+  <ul>
+    <li><b>Compte</b> : adresse e-mail et mot de passe chiffré, pour donner accès au desk (exécution du contrat).</li>
+    <li><b>Configuration du desk</b> : pseudo, niveau, marchés suivis, paramètres de risque, couleur et modules, pour personnaliser le desk (exécution du contrat).</li>
+    <li><b>Dernière connexion</b> : pour la sécurité et le suivi du service (intérêt légitime).</li>
+    <li><b>Achat</b> : e-mail de l'acheteur et statut de l'accès, transmis par le prestataire de paiement (exécution du contrat, obligations comptables).</li>
+  </ul>
+  <p>Le <b>journal de trades</b> reste dans le navigateur de l'utilisateur : il n'est pas envoyé au vendeur. La <b>météo</b> du point du jour n'utilise la position que si l'utilisateur l'autorise, et seulement pour interroger le service météo.</p>
+  <h3>Destinataires</h3>
+  <p>Les données sont traitées par les prestataires nécessaires au service : hébergement du site (GitHub), comptes (<span class="todo">Supabase</span>), paiement (<span class="todo">prestataire de paiement</span>). Certains sont situés hors de l'Union européenne et encadrés par des garanties appropriées (clauses contractuelles types ou cadre de protection des données UE–États-Unis).</p>
+  <h3>Durée de conservation</h3>
+  <p>Les données du compte sont conservées tant que le compte existe, puis supprimées dans un délai de <span class="todo">3 ans</span> après la dernière connexion. Les données d'achat sont conservées le temps imposé par les obligations comptables.</p>
+  <h3>Tes droits</h3>
+  <p>Tu peux demander l'accès, la rectification, l'effacement ou la portabilité de tes données, ou t'opposer à un traitement, en écrivant à <span class="todo">adresse e-mail</span>. Tu peux aussi déposer une réclamation auprès de la CNIL (cnil.fr).</p>
+  <h3>Stockage local et services tiers</h3>
+  <p>Le site utilise le stockage du navigateur (localStorage) uniquement pour faire fonctionner le desk : session, réglages et journal. Aucun outil de publicité ou de mesure d'audience n'est utilisé. Les polices sont hébergées sur le site. Les widgets TradingView et le flux de cours Binance sont chargés depuis leurs serveurs, qui reçoivent l'adresse IP du visiteur et peuvent déposer leurs propres cookies, selon leurs politiques respectives.</p>
 
-  <h2>Avertissement sur les risques</h2>
-  <p>Le trading d'actifs financiers et de cryptomonnaies comporte un risque élevé de perte en capital. Les performances passées ne préjugent pas des performances futures. Toute décision d'investissement relève de la seule responsabilité de l'utilisateur.</p>
+  <h2 id="credits">Crédits</h2>
+  <p>Cours crypto : Binance. Graphiques, actualités et calendrier économique : TradingView. Données météo : Open-Meteo (licence CC BY 4.0). Polices : Manrope, Unbounded et DM Mono, sous licence SIL Open Font License.</p>
 
-  <h2>Prix et paiement</h2>
-  <p>Prix : <span class="todo">À COMPLÉTER</span> TTC, en paiement unique. Le paiement est encaissé par le prestataire de paiement indiqué ci-dessus, qui délivre le reçu ou la facture.</p>
-
-  <h2>Droit de rétractation</h2>
-  <p><span class="todo">À COMPLÉTER</span> Pour un contenu numérique fourni immédiatement, le droit de rétractation de 14 jours peut être perdu si l'acheteur donne son accord exprès à l'exécution immédiate et reconnaît perdre ce droit (article L221-28 du Code de la consommation). Préciser ici la politique choisie, y compris un éventuel remboursement.</p>
-
-  <h2>Données personnelles</h2>
-  <p>Données collectées : adresse e-mail, préférences de configuration du desk et date de dernière connexion, pour fournir le service. Le journal de trades est stocké dans le navigateur de l'utilisateur. Responsable du traitement : <span class="todo">À COMPLÉTER</span>. Pour exercer tes droits (accès, rectification, suppression) : <span class="todo">adresse e-mail</span>.</p>
-
-  <p style="margin-top:40px"><a class="pz-btn" href="./">← Retour</a></p>
+  <p style="margin-top:48px"><a class="pz-btn" href="./">← Retour</a></p>
 </div>
 </body>
 </html>

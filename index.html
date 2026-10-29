@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pumpr · Ton desk de trading</title>
 <meta name="description" content="Pumpr : journal de trades, calcul du risque, graphiques et cours crypto en direct dans un seul desk. Paiement unique.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=Manrope:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/fonts.css">
 <link rel="stylesheet" href="assets/pumpr.css">
 <style>
 html{scroll-behavior:smooth}
@@ -52,6 +50,7 @@ h1 .v{background:linear-gradient(90deg,var(--pz-violet),var(--pz-pink));-webkit-
 .lead{font-size:18px;color:#b9c0d4;max-width:540px;margin:0 0 30px}
 .hero .actions{display:flex;gap:12px;flex-wrap:wrap}
 .hero .actions .pz-btn{padding:16px 24px;font-size:15px}
+.risk{margin:16px 0 0;color:var(--pz-dim);font:600 12.5px/1.5 var(--pz-body);max-width:520px}
 .trust{display:flex;gap:18px;flex-wrap:wrap;margin-top:26px;color:var(--pz-muted);font:600 13px/1.3 var(--pz-body)}
 .trust span{display:inline-flex;gap:7px;align-items:center}
 .trust svg{width:16px;height:16px;color:var(--pz-lime)}
@@ -180,18 +179,19 @@ footer nav a:hover{color:var(--pz-text)}
   </div>
 </header>
 
-<div class="ticker" aria-label="Cours crypto en direct (Binance)"><div class="track" id="track"></div></div>
+<div class="ticker" aria-label="Cours crypto en direct (source : Binance)" title="Cours en direct · source : Binance"><div class="track" id="track"></div></div>
 
 <main id="top">
   <div class="wrap hero">
     <div class="reveal">
       <div class="eyebrow"><span class="pz-chip"><b></b>Cours crypto en direct</span><span class="pz-chip">Paiement unique</span></div>
       <h1>Trade comme un <span class="l">degen.</span><br>Note comme un <span class="v">pro.</span></h1>
-      <p class="lead">Pumpr réunit tout ton trading dans un seul desk : journal, calcul du risque, graphiques et cours crypto en temps réel. Tu ouvres, tu notes, tu progresses.</p>
+      <p class="lead">Pumpr réunit tout ton trading dans un seul desk : journal, calcul du risque, graphiques et cours crypto en temps réel. Tu ouvres, tu notes, tu analyses.</p>
       <div class="actions">
         <button class="pz-btn pz-btn-main" type="button" data-buy>Acheter Pumpr <span aria-hidden="true">→</span></button>
         <a class="pz-btn" href="#fonctions">Voir ce qu'il y a dedans</a>
       </div>
+      <p class="risk">Outil d'organisation, pas un conseil en investissement. Le trading comporte un risque élevé de perte en capital.</p>
       <div class="trust">
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>Aucun abonnement</span>
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>Rien à installer</span>
@@ -266,7 +266,7 @@ footer nav a:hover{color:var(--pz-text)}
       <div class="reveal">
         <div class="kicker">Prix</div>
         <h2>Tu paies une fois. C'est tout.</h2>
-        <p class="lead">Pas d'abonnement qui tourne en fond. Tu achètes Pumpr, il est à toi, avec les mises à jour.</p>
+        <p class="lead">Pas d'abonnement qui tourne en fond : tu paies une fois pour accéder au desk avec ton compte personnel.</p>
         <div class="pz-card not">
           <h3>Ce que Pumpr n'est pas</h3>
           <ul><li>Pas un bot : il ne passe aucun ordre et n'a jamais accès à ton argent.</li><li>Pas des signaux : il ne te dit jamais quoi acheter ou vendre.</li><li>Pas une promesse de gains : c'est un outil pour t'organiser.</li></ul>
@@ -281,10 +281,11 @@ footer nav a:hover{color:var(--pz-text)}
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>Journal, risque, graphiques, calendriers</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>Cours crypto en direct et watchlist</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>Configuration personnalisée</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>Mises à jour incluses</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>Aucun abonnement ni frais cachés</li>
         </ul>
         <button class="pz-btn pz-btn-main" type="button" data-buy>Acheter Pumpr</button>
         <p class="pz-note small">Déjà acheté ? <a href="desk/">Accède à ton desk</a></p>
+        <p class="pz-note small" style="margin-top:6px;font-size:12px">En achetant, tu acceptes les <a href="mentions-legales.html#cgv">conditions de vente</a>. Le trading comporte un risque de perte en capital.</p>
       </div>
     </div>
   </section>
@@ -297,6 +298,8 @@ footer nav a:hover{color:var(--pz-text)}
         <details class="pz-card reveal"><summary>Pumpr donne-t-il des conseils ou des signaux ?</summary><p>Non. Pumpr est un outil d'organisation et d'analyse, pas un conseil en investissement. Les décisions restent les tiennes.</p></details>
         <details class="pz-card reveal"><summary>Comment j'accède au desk après l'achat ?</summary><p>Tu reçois le lien par e-mail. Tu crées ton compte avec la même adresse e-mail que celle de ton achat, puis tu configures ton desk.</p></details>
         <details class="pz-card reveal"><summary>Où sont stockées mes données ?</summary><p>Ta configuration est liée à ton compte. Ton journal de trades reste dans ton navigateur, et tu peux l'exporter ou l'importer quand tu veux.</p></details>
+        <details class="pz-card reveal"><summary>Puis-je être remboursé ?</summary><p>Les conditions de remboursement et de rétractation sont détaillées dans les <a href="mentions-legales.html#cgv">conditions de vente</a>.</p></details>
+        <details class="pz-card reveal"><summary>D'où viennent les cours et les graphiques ?</summary><p>Les cours crypto en direct viennent de Binance. Les graphiques, les actualités et le calendrier économique sont fournis par TradingView. Certains cours peuvent être différés ou momentanément indisponibles.</p></details>
         <details class="pz-card reveal"><summary>Sur quels appareils ça marche ?</summary><p>Dans un navigateur récent (Chrome, Edge, Safari, Firefox), sur ordinateur. Le desk s'adapte aussi aux tablettes et téléphones.</p></details>
       </div>
     </div>
@@ -317,9 +320,10 @@ footer nav a:hover{color:var(--pz-text)}
   <div class="wrap">
     <div class="top">
       <a class="pz-logo" href="#top"><i>P</i>Pumpr</a>
-      <nav aria-label="Liens"><a href="desk/">Mon desk</a><a href="#faq">FAQ</a><a href="mentions-legales.html">Mentions légales et CGV</a><a href="admin/">Espace admin</a></nav>
+      <nav aria-label="Liens"><a href="desk/">Mon desk</a><a href="#faq">FAQ</a><a href="mentions-legales.html">Mentions légales</a><a href="mentions-legales.html#cgv">CGV</a><a href="mentions-legales.html#confidentialite">Confidentialité</a><a href="admin/">Espace admin</a></nav>
     </div>
-    <p class="disclaimer">Pumpr est un outil d'organisation et d'analyse de tes trades. Il ne constitue pas un conseil en investissement, ne passe aucun ordre et n'a accès à aucun compte de courtage. Le trading, en particulier sur les cryptomonnaies, comporte un risque élevé de perte en capital. Les cours affichés proviennent de Binance et de TradingView, et peuvent être différés.</p>
+    <p class="disclaimer">Pumpr est un outil d'organisation et d'analyse de tes trades. Il ne constitue pas un conseil en investissement ni une recommandation d'achat ou de vente, ne passe aucun ordre et n'a accès à aucun compte de courtage. Le trading, en particulier sur les cryptomonnaies, comporte un risque élevé de perte en capital : n'investis jamais de l'argent dont tu as besoin. Les performances passées ne préjugent pas des performances futures.</p>
+    <p class="disclaimer">Cours crypto : <a href="https://www.binance.com" target="_blank" rel="noopener noreferrer">Binance</a>. Graphiques, actualités et calendrier économique : <a href="https://www.tradingview.com" target="_blank" rel="noopener noreferrer">TradingView</a>. Pumpr n'est affilié ni à Binance ni à TradingView. Les noms de cryptomonnaies sont cités à titre informatif. © Pumpr</p>
   </div>
 </footer>
 

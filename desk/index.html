@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#070b14">
 <title>Pumpr · Mon desk</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Unbounded:wght@700;800;900&family=Manrope:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/fonts.css">
 <style>
 /* Layout : fond en dégradé vivant, panneaux de verre arrondis. Colonne de travail à gauche (synthèse, graphique, journal…), la watchlist ancrée à droite. */
 :root{
@@ -432,10 +430,10 @@ body.lite{background:radial-gradient(ellipse 70% 50% at 40% -10%,rgba(69,217,240
 <aside class="drawer" id="dBrief" aria-hidden="true" aria-label="Point du jour">
   <div class="dh"><div><h2>Point du jour</h2><p id="bStatus">—</p></div><button class="ibtn" type="button" data-close aria-label="Fermer">✕</button></div>
   <div class="db" style="display:grid;gap:14px;align-content:start">
-    <div class="bgrid"><div><span>Heure</span><b id="bTime">—</b></div><div><span>Météo</span><b id="bWx">—</b></div><div><span>Bitcoin · 24 h</span><b id="bBTC">—</b></div><div><span>Ethereum · 24 h</span><b id="bETH">—</b></div></div>
+    <div class="bgrid"><div><span>Heure</span><b id="bTime">—</b></div><div><span>Solana · 24 h</span><b id="bSOL">—</b></div><div><span>Bitcoin · 24 h</span><b id="bBTC">—</b></div><div><span>Ethereum · 24 h</span><b id="bETH">—</b></div></div>
     <textarea class="field" id="bText" readonly style="min-height:140px;resize:vertical" aria-label="Résumé"></textarea>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="bCopy">Copier</button><button class="btn" type="button" id="bRefresh">Actualiser</button></div>
-    <p class="note" style="margin:0">La météo demande l'autorisation de localisation. Tes données restent dans ce navigateur.</p>
+    <p class="note" style="margin:0">Résumé calculé dans ton navigateur à partir des cours Binance et de ton journal.</p>
   </div>
 </aside>
 
@@ -601,12 +599,9 @@ $("#sLite").addEventListener("change",e=>{S.v3.lite=e.target.checked;applyLayout
 $$("#sAcc button").forEach(b=>b.addEventListener("click",()=>{S.accent=b.dataset.a;applyAccent();saveS();drawEq(stats().closed)}));
 
 /* ---------- point du jour ---------- */
-const WX={0:"Ciel dégagé",1:"Plutôt dégagé",2:"Partiellement nuageux",3:"Couvert",45:"Brouillard",48:"Brouillard givrant",51:"Bruine légère",53:"Bruine",55:"Bruine forte",61:"Pluie faible",63:"Pluie",65:"Pluie forte",71:"Neige faible",73:"Neige",75:"Neige forte",80:"Averses faibles",81:"Averses",82:"Fortes averses",95:"Orage",96:"Orage et grêle",99:"Orage et forte grêle"};
-let weather="non disponible";
 const qtxt=s=>{const q=live[s];return q?fmtPx(q.price)+" $ · "+(q.pct>=0?"+":"−")+nf(2,2).format(Math.abs(q.pct))+" %":"flux indisponible"};
-function loadWx(){return new Promise(res=>{if(!navigator.geolocation){weather="localisation non prise en charge";return res()}navigator.geolocation.getCurrentPosition(async p=>{try{const u=new URL("https://api.open-meteo.com/v1/forecast");u.searchParams.set("latitude",p.coords.latitude);u.searchParams.set("longitude",p.coords.longitude);u.searchParams.set("current","temperature_2m,apparent_temperature,weather_code,wind_speed_10m");u.searchParams.set("timezone","auto");const c=(await (await fetch(u)).json()).current;weather=(WX[c.weather_code]||"—")+", "+Math.round(c.temperature_2m)+" °C (ressenti "+Math.round(c.apparent_temperature)+" °C), vent "+Math.round(c.wind_speed_10m)+" km/h"}catch(e){weather="service météo injoignable"}res()},()=>{weather="localisation refusée";res()},{timeout:10000,maximumAge:600000})})}
-function briefText(){const s=stats();return ["Heure : "+$("#bTime").textContent,"Météo : "+weather,"Bitcoin : "+qtxt("BTC"),"Ethereum : "+qtxt("ETH"),"Solana : "+qtxt("SOL"),"Journal : "+s.closed.length+" trades clôturés, P&L cumulé "+money(s.tot)+", "+s.open+" en cours"].join("\n")}
-async function brief(){$("#bStatus").textContent="Récupération des données…";$("#bTime").textContent=new Intl.DateTimeFormat("fr-FR",{dateStyle:"medium",timeStyle:"short"}).format(new Date());$("#bBTC").textContent=qtxt("BTC");$("#bETH").textContent=qtxt("ETH");$("#bWx").textContent="…";$("#bText").value=briefText();await loadWx();$("#bWx").textContent=weather;$("#bText").value=briefText();$("#bStatus").textContent="Prêt."}
+function briefText(){const s=stats();return ["Heure : "+$("#bTime").textContent,"Bitcoin : "+qtxt("BTC"),"Ethereum : "+qtxt("ETH"),"Solana : "+qtxt("SOL"),"Journal : "+s.closed.length+" trades clôturés, P&L cumulé "+money(s.tot)+", "+s.open+" en cours"].join("\n")}
+async function brief(){$("#bStatus").textContent="Récupération des données…";$("#bTime").textContent=new Intl.DateTimeFormat("fr-FR",{dateStyle:"medium",timeStyle:"short"}).format(new Date());$("#bBTC").textContent=qtxt("BTC");$("#bETH").textContent=qtxt("ETH");$("#bSOL").textContent=qtxt("SOL");$("#bText").value=briefText();$("#bStatus").textContent="Prêt."}
 $("#briefBtn").addEventListener("click",()=>{openD("dBrief");brief()});$("#bRefresh").addEventListener("click",brief);
 $("#bCopy").addEventListener("click",async()=>{const t=$("#bText");try{await navigator.clipboard.writeText(t.value);toast("Copié.")}catch(e){t.focus();t.select();toast("Texte sélectionné : Ctrl + C.")}});
 

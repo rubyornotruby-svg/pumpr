@@ -49,7 +49,8 @@
       <form class="g-form" id="authF" novalidate>
         <label class="pz-label">Adresse e-mail${tab === "up" ? " (celle de ton achat)" : ""}<input class="pz-field" id="aMail" type="email" autocomplete="email" required></label>
         <label class="pz-label">Mot de passe<input class="pz-field" id="aPw" type="password" autocomplete="${tab === "in" ? "current-password" : "new-password"}" minlength="8" required></label>
-        ${tab === "up" ? `<label class="pz-label">Confirme le mot de passe<input class="pz-field" id="aPw2" type="password" autocomplete="new-password" minlength="8" required></label>` : ""}
+        ${tab === "up" ? `<label class="pz-label">Confirme le mot de passe<input class="pz-field" id="aPw2" type="password" autocomplete="new-password" minlength="8" required></label>
+        <label class="g-check"><input type="checkbox" id="aCgu"><span>J'accepte les <a href="../mentions-legales.html#cgv" target="_blank" rel="noopener">conditions de vente et d'utilisation</a> et la <a href="../mentions-legales.html#confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>. Je comprends que Pumpr n'est pas un conseil en investissement.</span></label>` : ""}
         <div class="${msg && msg.ok ? "pz-ok" : "pz-err"}" id="aErr" role="alert">${msg ? esc(msg.text) : ""}</div>
         <button class="pz-btn pz-btn-main" type="submit" id="aGo">${tab === "in" ? "Se connecter" : "Créer mon compte"}</button>
         ${tab === "in" ? `<button class="g-link" type="button" id="aForgot">Mot de passe oublié ?</button>` : ""}
@@ -63,6 +64,7 @@
       e.preventDefault(); err.className = "pz-err"; err.textContent = "";
       const mail = $("#aMail").value, pw = $("#aPw").value;
       if (tab === "up" && pw !== $("#aPw2").value) { err.textContent = "Les deux mots de passe ne sont pas identiques."; return; }
+      if (tab === "up" && !$("#aCgu").checked) { err.textContent = "Coche la case pour accepter les conditions."; return; }
       busy(go, true, tab === "in" ? "Connexion…" : "Vérification de l'achat…");
       try {
         const r = tab === "in" ? await P.signIn(mail, pw) : await P.signUp(mail, pw);
@@ -221,6 +223,13 @@
       <a role="menuitem" href="../">Site Pumpr</a>
       <button type="button" role="menuitem" class="out" id="mOut">Se déconnecter</button></div>`;
     top.appendChild(w);
+    const app = document.querySelector(".app");
+    if (app && !$("#dFoot")) {
+      const f = document.createElement("footer"); f.id = "dFoot"; f.className = "dfoot";
+      f.innerHTML = `<p>Pumpr est un outil d'organisation et d'analyse, pas un conseil en investissement. Il ne passe aucun ordre. Le trading comporte un risque élevé de perte en capital.</p>
+        <p>Cours crypto : Binance · Graphiques, actualités et calendrier économique : TradingView · Météo : Open-Meteo · <a href="../mentions-legales.html">Mentions légales</a> · <a href="../mentions-legales.html#cgv">CGV</a> · <a href="../mentions-legales.html#confidentialite">Confidentialité</a></p>`;
+      app.appendChild(f);
+    }
     const btn = $("#acctBtn"), menu = $("#acctMenu");
     const set = on => { menu.classList.toggle("open", on); btn.setAttribute("aria-expanded", String(on)); };
     btn.addEventListener("click", e => { e.stopPropagation(); set(!menu.classList.contains("open")); });

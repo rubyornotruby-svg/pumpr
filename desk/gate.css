@@ -62,3 +62,9 @@ body.locked .app{visibility:hidden}
 .acct-menu a:hover,.acct-menu button:hover{background:rgba(255,255,255,.06)}
 .acct-menu .out{color:#ffb3be}
 @media(max-width:640px){.acct-name{display:none}}
+.g-check{display:flex;gap:10px;align-items:flex-start;font:500 13px/1.5 var(--pz-body);color:var(--pz-muted);cursor:pointer}
+.g-check input{width:18px;height:18px;margin-top:1px;flex:none;accent-color:var(--pz-lime)}
+.g-check a{color:var(--pz-text)}
+.dfoot{margin-top:28px;padding:18px 4px 0;border-top:1px solid var(--line);color:var(--faint);font-size:12px;line-height:1.6}
+.dfoot p{margin:0 0 6px}
+.dfoot a{color:var(--dim)}
