@@ -135,9 +135,24 @@
       return data && data.actif ? data : null;
     },
 
+    /* Mot de passe admin provisoire du mode démo (empreinte PBKDF2, le mot de passe n'est pas dans le code).
+       Ce n'est qu'un frein pour les curieux : la vraie protection arrive avec Supabase. */
+    async unlockDemoAdmin(pw) {
+      if (LIVE) return false;
+      try {
+        const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw || ""), "PBKDF2", false, ["deriveBits"]);
+        const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode("pumpr-admin-demo-v1"), iterations: 250000 }, key, 256);
+        const hex = Array.from(new Uint8Array(bits)).map(x => x.toString(16).padStart(2, "0")).join("");
+        const ok = hex === "d232e1e605b7c975f1f9d0edf0103f2ba99099938a4111561f0079d59c99b240";
+        if (ok) ls.set("pumpr-demo-admin", true);
+        return ok;
+      } catch (e) { return false; }
+    },
+    lockDemoAdmin() { ls.del("pumpr-demo-admin"); },
+
     async isAdmin() {
       const s = await api.session();
-      if (!LIVE) return true; /* démo : admin ouvert, signalé par un bandeau */
+      if (!LIVE) return ls.get("pumpr-demo-admin", false) === true;
       if (!s) return false;
       const { data, error } = await sb.rpc("est_admin");
       return !error && data === true;

@@ -103,7 +103,7 @@ let tt;const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("show
 const app=$("#app");
 let access=[],profiles=[],site={},tab="dash",confirmDel=null;
 
-if(P.mode==="demo"){const d=document.createElement("div");d.className="pz-demo";d.textContent="Mode démo : cet espace admin n'est pas protégé. Il le sera dès que Supabase est branché.";document.body.appendChild(d)}
+if(P.mode==="demo"){const d=document.createElement("div");d.className="pz-demo";d.textContent="Mode démo : mot de passe provisoire. La vraie protection arrivera avec Supabase.";document.body.appendChild(d)}
 
 /* ---------- connexion admin ---------- */
 function loginView(msg){
@@ -206,6 +206,14 @@ function users(){
 
 async function refresh(){await load()}
 
+function demoLock(msg){
+  app.innerHTML=`<div class="login"><div class="pz-card"><h1 style="font-size:24px">Espace admin</h1><p class="sub" style="margin-bottom:20px">Entre le mot de passe administrateur.</p>
+  <form class="form" id="df" novalidate><label class="pz-label">Mot de passe<input class="pz-field" id="dp" type="password" autocomplete="current-password"></label>
+  <div class="pz-err" id="de" role="alert">${esc(msg||"")}</div><button class="pz-btn pz-btn-main" type="submit" id="dg">Entrer</button></form></div></div>`;
+  setTimeout(()=>$("#dp").focus(),50);
+  $("#df").addEventListener("submit",async e=>{e.preventDefault();const b=$("#dg");b.disabled=true;b.textContent="Vérification…";const ok=await P.unlockDemoAdmin($("#dp").value);if(ok)return boot();b.disabled=false;b.textContent="Entrer";$("#de").textContent="Mot de passe incorrect.";$("#dp").select()});
+}
+
 async function boot(){
   try{
     await P.ready();
@@ -213,9 +221,9 @@ async function boot(){
     if(P.mode==="live"){
       if(!s)return loginView();
       if(!await P.isAdmin()){await P.signOut();return loginView("Ce compte n'est pas administrateur.")}
-    }
+    }else if(!await P.isAdmin())return demoLock();
     $("#who").textContent=s?s.email:"Mode démo";
-    const out=$("#outBtn");if(s){out.hidden=false;out.onclick=async()=>{await P.signOut();location.reload()}}
+    const out=$("#outBtn");out.hidden=false;out.onclick=async()=>{if(P.mode==="demo")P.lockDemoAdmin();else await P.signOut();location.reload()};
     await load();
     const h=location.hash.slice(1);if(["dash","access","site","users"].includes(h))tab=h;
     shell();
