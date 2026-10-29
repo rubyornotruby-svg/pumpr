@@ -1,0 +1,64 @@
+/* Pumpr · écran de connexion, configuration et menu du compte (desk) */
+body.locked{overflow:hidden}
+body.locked .app{visibility:hidden}
+.gate{position:fixed;inset:0;z-index:120;overflow-y:auto;background:radial-gradient(45% 40% at 80% 0%,rgba(139,92,246,.25),transparent 70%),radial-gradient(40% 35% at 10% 10%,rgba(198,255,61,.12),transparent 70%),var(--pz-bg);display:flex;flex-direction:column;align-items:center;padding:28px 16px 60px;font-family:var(--pz-body);color:var(--pz-text);transition:opacity .5s var(--pz-ease),visibility .5s}
+.gate.gone{opacity:0;visibility:hidden;pointer-events:none}
+.gate .g-top{width:min(560px,100%);display:flex;justify-content:space-between;align-items:center;margin-bottom:auto;padding-bottom:28px}
+.gate .g-top a{color:var(--pz-muted);font:600 13px/1 var(--pz-body);text-decoration:none}
+.gate .g-top a:hover{color:var(--pz-text)}
+.gate .g-mid{width:100%;display:flex;justify-content:center;margin-bottom:auto}
+.g-card{width:min(440px,100%);padding:30px;background:var(--pz-panel2);animation:gIn .6s var(--pz-ease)}
+.g-card.wide{width:min(580px,100%)}
+@keyframes gIn{from{opacity:0;transform:translateY(14px) scale(.985)}}
+.g-card h1{font:800 26px/1.15 var(--pz-display);letter-spacing:-.02em;margin:0 0 8px}
+.g-card .sub{color:var(--pz-muted);margin:0 0 22px;font-size:15px;line-height:1.55}
+.g-form{display:grid;gap:14px}
+.g-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.05);margin-bottom:22px}
+.g-tabs button{appearance:none;border:0;background:transparent;color:var(--pz-muted);font:700 14px/1 var(--pz-body);padding:11px;border-radius:999px;cursor:pointer;transition:background .25s,color .25s}
+.g-tabs button[aria-selected="true"]{background:var(--pz-lime);color:var(--pz-lime-ink)}
+.g-link{appearance:none;background:none;border:0;padding:0;color:var(--pz-muted);font:600 13px/1.4 var(--pz-body);text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:start}
+.g-link:hover{color:var(--pz-text)}
+.g-help{margin-top:18px;padding:14px 16px;border-radius:12px;background:rgba(255,201,77,.08);border:1px solid rgba(255,201,77,.25);color:#ffe4a1;font:500 13px/1.55 var(--pz-body)}
+.g-help a{color:#fff}
+.g-loading{display:grid;place-items:center;gap:16px;color:var(--pz-muted);font:600 14px/1 var(--pz-body)}
+.g-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.1);border-top-color:var(--pz-lime);animation:gSpin .8s linear infinite}
+@keyframes gSpin{to{transform:rotate(360deg)}}
+.g-icon{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;margin-bottom:18px;background:rgba(255,93,115,.12);color:#ff9aa9}
+.g-icon svg{width:26px;height:26px}
+.g-row{display:flex;gap:10px;flex-wrap:wrap}
+/* assistant de configuration */
+.wz-step{font:700 12px/1 var(--pz-mono);letter-spacing:.12em;color:var(--pz-muted);margin-bottom:10px}
+.wz-prog{height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;margin-bottom:24px}
+.wz-prog b{display:block;height:100%;background:var(--pz-lime);border-radius:3px;transition:width .5s var(--pz-ease)}
+.wz-panel{display:grid;gap:16px;animation:gIn .45s var(--pz-ease)}
+.wz-chips{display:flex;flex-wrap:wrap;gap:8px}
+.wz-chips button{appearance:none;border:1px solid var(--pz-line2);background:rgba(255,255,255,.03);color:var(--pz-muted);font:700 14px/1 var(--pz-body);padding:12px 15px;border-radius:999px;cursor:pointer;transition:all .2s}
+.wz-chips button:hover{border-color:rgba(255,255,255,.25);color:var(--pz-text)}
+.wz-chips button[aria-pressed="true"]{background:rgba(198,255,61,.12);border-color:var(--pz-lime);color:var(--pz-lime)}
+.wz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:520px){.wz-grid{grid-template-columns:1fr}}
+.wz-sw{display:flex;gap:12px;flex-wrap:wrap}
+.wz-sw button{width:40px;height:40px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer;box-shadow:0 0 0 1px rgba(255,255,255,.15) inset;transition:transform .2s}
+.wz-sw button:hover{transform:scale(1.08)}
+.wz-sw button[aria-pressed="true"]{border-color:#fff;transform:scale(1.08)}
+.wz-mods{display:grid;gap:8px;max-height:430px;overflow:auto;padding-right:4px}
+.wz-mod{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--pz-line);border-radius:12px;font:600 14px/1.2 var(--pz-body)}
+.wz-mod span{flex:1}
+.wz-mod input{width:18px;height:18px;accent-color:var(--pz-lime)}
+.wz-mod button{appearance:none;border:1px solid var(--pz-line2);background:transparent;color:var(--pz-muted);width:30px;height:30px;border-radius:9px;cursor:pointer}
+.wz-mod button:disabled{opacity:.3;cursor:default}
+.wz-nav{display:flex;justify-content:space-between;gap:10px;margin-top:26px}
+.wz-tip{font:500 13px/1.5 var(--pz-body);color:var(--pz-muted);padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--pz-line)}
+/* menu du compte dans le desk */
+.acct{position:relative}
+.acct-btn{display:inline-flex;align-items:center;gap:9px}
+.acct-av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--cyan);color:#071016;font:800 12px/1 var(--display)}
+.acct-menu{position:absolute;right:0;top:calc(100% + 10px);min-width:250px;z-index:90;background:#10141f;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:8px;box-shadow:0 24px 60px -16px rgba(0,0,0,.8);opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .25s var(--pz-ease)}
+.acct-menu.open{opacity:1;visibility:visible;transform:none}
+.acct-menu .who{padding:10px 12px 12px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:6px}
+.acct-menu .who b{display:block;font:700 14px/1.3 var(--body)}
+.acct-menu .who small{color:var(--muted,#8d95ad);font:500 12px/1.4 var(--body);word-break:break-all}
+.acct-menu a,.acct-menu button{display:flex;width:100%;text-align:left;appearance:none;border:0;background:none;color:inherit;font:600 14px/1.2 var(--body);padding:11px 12px;border-radius:10px;cursor:pointer;text-decoration:none}
+.acct-menu a:hover,.acct-menu button:hover{background:rgba(255,255,255,.06)}
+.acct-menu .out{color:#ffb3be}
+@media(max-width:640px){.acct-name{display:none}}
