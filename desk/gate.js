@@ -15,7 +15,13 @@
   const ACCENTS = [["lime", "#c6ff3d", "Citron vert"], ["cyan", "#45d9f0", "Cyan"], ["violet", "#a68cff", "Violet"], ["pink", "#ff4fd8", "Rose"], ["blue", "#6f97ff", "Bleu"], ["green", "#3fe0a2", "Vert"]];
   const LEVELS = ["Débutant", "Intermédiaire", "Confirmé"];
 
-  let me = null, profile = null, admin = false, started = false;
+  let me = null, profile = null, admin = false, started = false, adminMode = false;
+  /* Admin sans compte acheteur (mode démo) : sa configuration reste dans ce navigateur */
+  const AKEY = "pumpr-admin-profile";
+  const saveProf = async p => {
+    if (adminMode) { ls.set(AKEY, Object.assign({}, ls.get(AKEY, {}) || {}, p)); return { ok: true }; }
+    return P.saveProfile(p);
+  };
 
   /* ---------- squelette ---------- */
   document.body.classList.add("locked");
@@ -48,7 +54,7 @@
         <button class="pz-btn pz-btn-main" type="submit" id="aGo">${tab === "in" ? "Se connecter" : "Créer mon compte"}</button>
         ${tab === "in" ? `<button class="g-link" type="button" id="aForgot">Mot de passe oublié ?</button>` : ""}
       </form>
-      <p class="pz-note" style="margin:20px 0 0">Pas encore acheté ? <a href="../" style="color:var(--pz-text)">Découvrir Pumpr</a></p>
+      <p class="pz-note" style="margin:20px 0 0">Pas encore acheté ? <a href="../" style="color:var(--pz-text)">Découvrir Pumpr</a>${P.mode === "demo" ? ` · <a href="../admin/" style="color:var(--pz-muted)">Accès administrateur</a>` : ""}</p>
       ${P.mode === "demo" ? `<div class="g-help"><b>Mode démo.</b> Pour tester : ajoute un e-mail acheteur dans <a href="../admin/">l'espace admin</a>, puis crée ton compte ici avec cet e-mail.</div>` : ""}
     </div>`);
     mid.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => authView(b.dataset.tab)));
@@ -185,7 +191,7 @@
         const prevMk = ((profile && profile.config && profile.config.marches) || []).join("|");
         if (!editing || prevMk !== c.marches.join("|")) c.favs = c.marches.flatMap(g => GROUPS[g] || []);
         const config = { niveau: c.niveau, marches: c.marches, cap: Number(c.cap), pct: Number(c.pct), stop: Number(c.stop), accent: c.accent, order: c.order, hidden: c.hidden, lite: !!c.lite, favs: c.favs };
-        const r = await P.saveProfile({ nom: c.nom, config, configure: true });
+        const r = await saveProf({ nom: c.nom, config, configure: true });
         if (!r.ok) { $("#wErr").textContent = r.error; busy(btn, false); return; }
         profile = Object.assign({}, profile || {}, { nom: c.nom, config, configure: true });
         applyLocal(Object.assign({}, c, { favs: c.favs }), !editing);
@@ -201,7 +207,7 @@
     if (!started) { started = true; window.__pumprSyncReady = true; if (typeof window.startDesk === "function") window.startDesk(); mountAccount(); }
     gate.classList.add("gone"); document.body.classList.remove("locked");
     const db = $("#demoBadge"); if (db) setTimeout(() => db.remove(), 6000);
-    P.touch().catch(() => {});
+    if (!adminMode) P.touch().catch(() => {});
   }
 
   function mountAccount() {
@@ -209,7 +215,7 @@
     const name = (profile && profile.nom) || me.email.split("@")[0];
     const w = document.createElement("div"); w.className = "acct"; w.id = "acctWrap";
     w.innerHTML = `<button class="btn acct-btn" type="button" id="acctBtn" aria-haspopup="menu" aria-expanded="false"><span class="acct-av">${esc(name.slice(0, 1).toUpperCase())}</span><span class="acct-name">${esc(name)}</span></button>
-      <div class="acct-menu" id="acctMenu" role="menu"><div class="who"><b>${esc(name)}</b><small>${esc(me.email)}</small></div>
+      <div class="acct-menu" id="acctMenu" role="menu"><div class="who"><b>${esc(name)}</b><small>${adminMode ? "Connecté en administrateur" : esc(me.email)}</small></div>
       <button type="button" role="menuitem" id="mCfg">Modifier ma configuration</button>
       ${admin ? `<a role="menuitem" href="../admin/">Espace admin</a>` : ""}
       <a role="menuitem" href="../">Site Pumpr</a>
@@ -221,7 +227,7 @@
     document.addEventListener("click", e => { if (!w.contains(e.target)) set(false); });
     document.addEventListener("keydown", e => { if (e.key === "Escape") set(false); });
     $("#mCfg").addEventListener("click", () => { set(false); gate.classList.remove("gone"); document.body.classList.add("locked"); wizard(true); });
-    $("#mOut").addEventListener("click", async () => { await P.signOut(); location.reload(); });
+    $("#mOut").addEventListener("click", async () => { if (adminMode) P.lockDemoAdmin(); else await P.signOut(); location.reload(); });
   }
 
   /* synchronisation des réglages du desk vers le compte (appelée par le desk) */
@@ -234,7 +240,7 @@
       const config = Object.assign({}, profile.config || {}, { cap: Number(c.cap), pct: Number(c.pct), stop: Number(c.stop), accent: c.accent, order: c.order, hidden: c.hidden, lite: !!c.lite, favs: c.favs });
       const nom = (ls.get(K.set, {}) || {}).name || profile.nom;
       profile = Object.assign({}, profile, { nom, config });
-      P.saveProfile({ nom, config }).catch(() => {});
+      saveProf({ nom, config }).catch(() => {});
     }, 1500);
   };
 
@@ -243,10 +249,15 @@
     loading("Vérification de ton accès…");
     try {
       me = await P.session();
-      if (!me) return authView("in");
-      const acc = await P.access();
-      if (!acc) return noAccessView();
-      [profile, admin] = await Promise.all([P.profile(), P.isAdmin()]);
+      admin = await P.isAdmin();
+      if (!me && admin && P.mode === "demo") {
+        /* admin déverrouillé : accès direct au desk, sans compte acheteur */
+        adminMode = true; me = { email: "admin", id: "admin" }; profile = ls.get(AKEY, null);
+      } else {
+        if (!me) return authView("in");
+        if (!admin && !(await P.access())) return noAccessView();
+        profile = await P.profile();
+      }
       if (!profile || !profile.configure) return wizard(false);
       applyLocal(Object.assign(currentConfig(), profile.config || {}, { nom: profile.nom }), false);
       openDesk();
