@@ -284,6 +284,7 @@ body.lite{background:radial-gradient(ellipse 70% 50% at 40% -10%,rgba(69,217,240
 
 <link rel="stylesheet" href="../assets/pumpr.css">
 <link rel="stylesheet" href="gate.css">
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -506,7 +507,7 @@ $("#wFav").addEventListener("click",function(){this.setAttribute("aria-pressed",
 
 /* ---------- graphique ---------- */
 let tf="15",cstyle="1";
-function loadChart(){if(S.v3.hidden.includes("chart")||suspended)return;const a=bySym(sel),box=$("#chartBox");box.innerHTML='<div class="loading">Chargement du graphique…</div>';const u=new URL("https://s.tradingview.com/widgetembed/");Object.entries({frameElementId:"jarvis_chart",symbol:a.tv,interval:tf,theme:"Dark",style:cstyle,locale:"fr",timezone:"Europe/Paris",hidesidetoolbar:"1",allow_symbol_change:"0",symboledit:"0",saveimage:"0",toolbarbg:"0b111d",withdateranges:"1",hideideas:"1"}).forEach(([k,v])=>u.searchParams.set(k,v));const f=document.createElement("iframe");f.title="Graphique "+a.pair;f.referrerPolicy="origin";f.src=u.toString();f.onload=()=>{f.classList.add("ready");setTimeout(()=>{const l=box.querySelector(".loading");if(l)l.remove()},500)};box.appendChild(f);$("#tvLink").href="https://www.tradingview.com/chart/?symbol="+encodeURIComponent(a.tv)}
+function loadChart(){if(S.v3.hidden.includes("chart")||suspended)return;const a=bySym(sel),box=$("#chartBox");box.innerHTML='<div class="loading">Chargement du graphique…</div>';const u=new URL("https://s.tradingview.com/widgetembed/");Object.entries({frameElementId:"jarvis_chart",symbol:a.tv,interval:tf,theme:"Dark",style:cstyle,locale:"fr",timezone:"Europe/Paris",hidesidetoolbar:"1",allow_symbol_change:"0",symboledit:"0",saveimage:"0",toolbarbg:"0a0c14",withdateranges:"1",hideideas:"1"}).forEach(([k,v])=>u.searchParams.set(k,v));const f=document.createElement("iframe");f.title="Graphique "+a.pair;f.referrerPolicy="origin";f.src=u.toString();f.onload=()=>{f.classList.add("ready");setTimeout(()=>{const l=box.querySelector(".loading");if(l)l.remove()},500)};box.appendChild(f);$("#tvLink").href="https://www.tradingview.com/chart/?symbol="+encodeURIComponent(a.tv)}
 function select(s){sel=s;store.set("jarvis-trading-selected-v2",s);const a=bySym(s);$("#cIcon").textContent=a.icon;$("#cPair").textContent=a.pair;$("#cName").textContent=a.name+" · "+a.group;if(live[s])paint(s);else{$("#cPrice").textContent=a.group==="Crypto"?"…":"";$("#cChg").textContent=a.group==="Crypto"?"Binance":"Cours dans le graphique"}$$(".asset").forEach(r=>r.classList.toggle("sel",r.dataset.sym===s));loadChart()}
 seg($("#tfSeg"),v=>{tf=v;loadChart()});seg($("#stSeg"),v=>{cstyle=v;loadChart()});
 

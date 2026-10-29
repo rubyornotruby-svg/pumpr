@@ -1,0 +1,72 @@
+/* Pumpr · thème du desk, aligné sur le site de vente.
+   Chargé après les styles d'origine : il ne fait que les surcharger.
+   --cyan reste le nom de la couleur d'accent (réglée par l'utilisateur, citron vert par défaut). */
+:root{
+  --bg:#06070c;
+  --glass:rgba(18,21,34,.72);
+  --glass-2:rgba(22,26,42,.8);
+  --line:rgba(255,255,255,.08);
+  --line-2:rgba(255,255,255,.14);
+  --ink:#eef1f8;
+  --dim:#8d95ad;
+  --faint:#5d6580;
+  --cyan:#c6ff3d;
+  --blue:#8b5cf6;
+  --glow:rgba(198,255,61,.16);
+  --down:#ff5d73;
+  --r:18px;
+  --display:"Unbounded","Sora","Segoe UI",system-ui,sans-serif;
+  --on-accent:#0b1200;
+}
+::selection{background:rgba(198,255,61,.3)}
+
+/* fond : halos violet / citron / rose + grille, comme le site de vente */
+body,body.lite{background:var(--bg)}
+body::before{content:"";position:fixed;inset:-20% -10% auto;height:120vh;pointer-events:none;z-index:0;background:
+  radial-gradient(40% 35% at 85% 0%,rgba(139,92,246,.24),transparent 70%),
+  radial-gradient(35% 30% at 10% 5%,rgba(198,255,61,.10),transparent 70%),
+  radial-gradient(30% 25% at 55% 70%,rgba(255,79,216,.07),transparent 70%)}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 80%)}
+.aurora,.grain{display:none}
+
+/* logo et titre */
+.logo{width:42px;height:42px;border-radius:13px;background:var(--cyan);transform:rotate(-6deg);box-shadow:0 0 0 1px rgba(255,255,255,.12),0 8px 30px -6px var(--glow)}
+.logo::after{display:none}
+.logo b{font:900 20px/1 var(--display);background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--on-accent)}
+.id h1{font:800 clamp(20px,2.2vw,26px)/1.1 var(--display);letter-spacing:-.025em}
+
+/* boutons : pilules, action principale en couleur pleine */
+.btn{font-weight:700}
+.btn-main,.btn-main:hover{background:var(--cyan);color:var(--on-accent);border:0;box-shadow:0 10px 28px -10px var(--cyan)}
+.btn-main:hover{filter:brightness(1.08);box-shadow:0 14px 36px -10px var(--cyan)}
+.seg{background:rgba(255,255,255,.04)}
+.seg .thumb{background:var(--cyan);box-shadow:0 4px 16px -4px var(--cyan)}
+.seg button.on{color:var(--on-accent)}
+.switch:checked{background:var(--cyan)}
+.meter i{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+
+/* panneaux */
+.card,body.lite .card{background:var(--glass);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 24px 60px -30px rgba(0,0,0,.7)}
+body.lite .card{background:rgba(16,19,31,.94)}
+.card::before{background:radial-gradient(500px circle at var(--mx,50%) var(--my,-20%),var(--glow),transparent 45%)}
+.card:hover{border-color:rgba(255,255,255,.14)}
+.ch h2{font:700 15px/1.25 var(--display);letter-spacing:-.01em}
+.ch p{color:var(--faint)}
+.kpi{background:rgba(255,255,255,.025)}
+.kpi b{font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-.02em}
+.trade,.day,.csum div,.bgrid div,.preview,.sides{background:rgba(255,255,255,.025)}
+.chart-box{background:#0a0c14}
+.badge{color:var(--cyan);background:rgba(255,255,255,.04);border-color:var(--line-2)}
+.asset.sel{background:linear-gradient(100deg,var(--glow),transparent)}
+.chip,.clock,.ibtn,body.lite .chip,body.lite .clock,body.lite .ibtn{background:rgba(255,255,255,.04)}
+
+/* champs */
+.field{background:rgba(255,255,255,.04)}
+.field:focus{border-color:var(--cyan);box-shadow:0 0 0 4px var(--glow);background:rgba(255,255,255,.05)}
+
+/* tiroirs (réglages, ajout de trade, point du jour) */
+.drawer{background:rgba(16,19,31,.96);border-color:var(--line-2)}
+
+/* menu du compte */
+.acct-av{background:var(--cyan);color:var(--on-accent)}
+.acct-menu{background:#121524}
