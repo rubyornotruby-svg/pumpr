@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pumpr · Se rétracter du contrat</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/pumpr.css">
+<style>
+body{margin:0;background:var(--pz-bg);color:var(--pz-text);font:500 16px/1.65 var(--pz-body)}
+.glow{position:fixed;inset:-20% -10% auto;height:120vh;pointer-events:none;z-index:0;background:radial-gradient(40% 35% at 75% 10%,rgba(139,92,246,.28),transparent 70%),radial-gradient(35% 30% at 15% 20%,rgba(198,255,61,.14),transparent 70%),radial-gradient(30% 25% at 60% 60%,rgba(255,79,216,.10),transparent 70%)}
+.wrap{position:relative;z-index:1;width:min(620px,100% - 32px);margin:0 auto;padding:36px 0 80px}
+h1{font:800 clamp(26px,5vw,36px)/1.15 var(--pz-display);letter-spacing:-.02em;margin:36px 0 10px}
+.lead{color:#c3c9dc;margin:0 0 24px}
+.box{padding:26px;background:var(--pz-panel2)}
+.form{display:grid;gap:14px}
+textarea.pz-field{min-height:110px;resize:vertical}
+.check{display:flex;gap:10px;align-items:flex-start;font:500 14px/1.5 var(--pz-body);color:var(--pz-muted);cursor:pointer}
+.check input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--pz-lime)}
+.done{display:none}
+.done.on{display:block}
+.done .ref{font:700 22px/1 var(--pz-mono);color:var(--pz-lime);margin:14px 0}
+.info{margin-top:22px;color:var(--pz-muted);font-size:14px}
+.info a,.lead a{color:var(--pz-text)}
+</style>
+</head>
+<body class="pz">
+<div class="glow" aria-hidden="true"></div>
+<div class="wrap">
+  <a class="pz-logo" href="./"><i>P</i>Pumpr</a>
+  <h1>Se rétracter du contrat</h1>
+  <p class="lead">Tu peux demander ici à annuler ton achat de Pumpr. Remplis le formulaire et clique sur « Confirmer la rétractation » : tu recevras une référence qui sert d'accusé de réception. Les conditions sont détaillées dans l'<a href="mentions-legales.html#cgv">article 7 des CGV</a>.</p>
+
+  <div class="pz-card box" id="formBox">
+    <form class="form" id="rf" novalidate>
+      <label class="pz-label">Adresse e-mail utilisée pour l'achat<input class="pz-field" id="rMail" type="email" autocomplete="email" required></label>
+      <label class="pz-label">Nom et prénom<input class="pz-field" id="rNom" maxlength="80" autocomplete="name"></label>
+      <label class="pz-label">Numéro de commande (sur ton reçu, facultatif)<input class="pz-field" id="rCmd" maxlength="80"></label>
+      <label class="pz-label">Message (facultatif)<textarea class="pz-field" id="rMsg" maxlength="600"></textarea></label>
+      <label class="check"><input type="checkbox" id="rOk"><span>Je déclare me rétracter de mon contrat d'achat de Pumpr.</span></label>
+      <div class="pz-err" id="rErr" role="alert"></div>
+      <button class="pz-btn pz-btn-main" type="submit" id="rGo">Confirmer la rétractation</button>
+    </form>
+  </div>
+
+  <div class="pz-card box done" id="doneBox" role="status">
+    <h2 style="font:800 22px/1.2 var(--pz-display);margin:0">Demande enregistrée</h2>
+    <p style="color:#c3c9dc;margin:10px 0 0">Ta demande de rétractation a bien été reçue le <b id="dDate"></b>. Garde cette référence :</p>
+    <div class="ref" id="dRef"></div>
+    <p class="pz-note" style="margin:0">Fais une capture d'écran de cette page. Le remboursement éventuel suit les conditions de l'article 7 des CGV et passe par le même moyen de paiement que ton achat.</p>
+  </div>
+
+  <p class="info">Une question ? Écris au contact indiqué dans les <a href="mentions-legales.html#mentions">mentions légales</a>.</p>
+</div>
+<script src="config.js"></script>
+<script src="assets/pumpr.js"></script>
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+$("#rf").addEventListener("submit",async e=>{
+  e.preventDefault();const err=$("#rErr");err.textContent="";
+  if(!$("#rOk").checked){err.textContent="Coche la case pour confirmer ta rétractation.";return}
+  const b=$("#rGo");b.disabled=true;b.textContent="Envoi…";
+  try{
+    const r=await Pumpr.requestWithdrawal({email:$("#rMail").value,nom:$("#rNom").value,commande:$("#rCmd").value,message:$("#rMsg").value});
+    if(!r.ok){err.textContent=r.error;b.disabled=false;b.textContent="Confirmer la rétractation";return}
+    $("#dRef").textContent="R-"+r.ref;
+    $("#dDate").textContent=new Intl.DateTimeFormat("fr-FR",{dateStyle:"long",timeStyle:"short"}).format(new Date(r.date));
+    $("#formBox").style.display="none";$("#doneBox").classList.add("on");
+  }catch(x){err.textContent=x.message||"Envoi impossible, réessaie.";b.disabled=false;b.textContent="Confirmer la rétractation"}
+});
+})();
+</script>
+</body>
+</html>

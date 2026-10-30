@@ -89,6 +89,30 @@ create policy "site_lecture" on public.reglages_site for select to anon, authent
 create policy "site_admin" on public.reglages_site for update to authenticated
   using (public.est_admin()) with check (public.est_admin());
 
+-- 5. Demandes de rétractation (bouton obligatoire) ------------------
+create table if not exists public.retractations (
+  id        uuid primary key default gen_random_uuid(),
+  email     text not null,
+  nom       text,
+  commande  text,
+  message   text,
+  statut    text not null default 'nouvelle',   -- nouvelle, remboursee, refusee
+  cree_le   timestamptz not null default now()
+);
+alter table public.retractations enable row level security;
+drop policy if exists "retract_admin" on public.retractations;
+create policy "retract_admin" on public.retractations for all to authenticated
+  using (public.est_admin()) with check (public.est_admin());
+create or replace function public.demander_retractation(e text, n text, c text, m text) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare rid uuid;
+begin
+  insert into public.retractations (email, nom, commande, message)
+  values (lower(trim(e)), left(n, 80), left(c, 80), left(m, 600)) returning id into rid;
+  return rid;
+end $$;
+grant execute on function public.demander_retractation(text, text, text, text) to anon, authenticated;
+
 -- Premier administrateur : remplace l'adresse ci-dessous ----------------
 insert into public.admins (email) values (lower('ADMIN_EMAIL')) on conflict do nothing;
 insert into public.acces (email, note) values (lower('ADMIN_EMAIL'), 'compte admin') on conflict do nothing;

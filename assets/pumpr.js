@@ -191,7 +191,32 @@
       return Object.assign({}, DEFAULT_SITE, data || {});
     },
 
+    /* Demande de rétractation (bouton obligatoire depuis le 19/06/2026) */
+    async requestWithdrawal(v) {
+      await api.ready();
+      const email = norm(v.email);
+      if (!okEmail(email)) return { ok: false, error: "Adresse e-mail invalide." };
+      const row = { email, nom: String(v.nom || "").slice(0, 80), commande: String(v.commande || "").slice(0, 80), message: String(v.message || "").slice(0, 600) };
+      if (!LIVE) {
+        const d = db(); d.retractations = d.retractations || [];
+        const r = Object.assign({ id: Date.now().toString(36), cree_le: new Date().toISOString(), statut: "nouvelle" }, row);
+        d.retractations.push(r); save(d); return { ok: true, ref: r.id.toUpperCase(), date: r.cree_le };
+      }
+      const { data, error } = await sb.rpc("demander_retractation", { e: row.email, n: row.nom, c: row.commande, m: row.message });
+      return error ? { ok: false, error: FR(error.message) } : { ok: true, ref: String(data).slice(0, 8).toUpperCase(), date: new Date().toISOString() };
+    },
+
     admin: {
+      async listWithdrawals() {
+        if (!LIVE) return (db().retractations || []).slice().sort((a, b) => String(b.cree_le).localeCompare(String(a.cree_le)));
+        const { data, error } = await sb.from("retractations").select("*").order("cree_le", { ascending: false });
+        if (error) throw new Error(FR(error.message)); return data || [];
+      },
+      async setWithdrawal(id, statut) {
+        if (!LIVE) { const d = db(), r = (d.retractations || []).find(x => x.id === id); if (r) { r.statut = statut; save(d); } return { ok: true }; }
+        const { error } = await sb.from("retractations").update({ statut }).eq("id", id);
+        return error ? { ok: false, error: FR(error.message) } : { ok: true };
+      },
       async saveSite(v) {
         const clean = { prix: String(v.prix || "").slice(0, 40), lien_achat: String(v.lien_achat || "").trim(), annonce: String(v.annonce || "").slice(0, 160), ventes_ouvertes: !!v.ventes_ouvertes };
         if (clean.lien_achat && !/^https:\/\//i.test(clean.lien_achat)) return { ok: false, error: "Le lien d'achat doit commencer par https://" };
