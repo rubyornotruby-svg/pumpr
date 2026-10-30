@@ -113,6 +113,40 @@ begin
 end $$;
 grant execute on function public.demander_retractation(text, text, text, text) to anon, authenticated;
 
+-- 6. Journal de trades sauvegardé dans le compte (une ligne par utilisateur)
+create table if not exists public.journaux (
+  user_id  uuid primary key references auth.users on delete cascade,
+  trades   jsonb not null default '[]'::jsonb,
+  maj_le   timestamptz not null default now()
+);
+alter table public.journaux enable row level security;
+drop policy if exists "journal_perso" on public.journaux;
+create policy "journal_perso" on public.journaux for all to authenticated
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+-- 7. Liste d'attente (page « Réserver mon accès fondateur ») ----------
+create table if not exists public.liste_attente (
+  id            bigint generated always as identity primary key,
+  email         text not null unique check (email = lower(email)),
+  code_parrain  text not null unique,
+  parraine_par  text,
+  source        text default 'liste_attente',
+  cree_le       timestamptz not null default now()
+);
+alter table public.liste_attente enable row level security;
+drop policy if exists "attente_inscription" on public.liste_attente;
+drop policy if exists "attente_admin" on public.liste_attente;
+create policy "attente_inscription" on public.liste_attente for insert to anon, authenticated
+  with check (email ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' and length(email) < 200);
+create policy "attente_admin" on public.liste_attente for select to authenticated
+  using (public.est_admin());
+-- Compteur public (vrai nombre d'inscrits, sans exposer les e-mails)
+create or replace function public.nb_inscrits() returns bigint
+language sql stable security definer set search_path = public as $$
+  select count(*) from public.liste_attente;
+$$;
+grant execute on function public.nb_inscrits() to anon, authenticated;
+
 -- Premier administrateur : remplace l'adresse ci-dessous ----------------
 insert into public.admins (email) values (lower('ADMIN_EMAIL')) on conflict do nothing;
 insert into public.acces (email, note) values (lower('ADMIN_EMAIL'), 'compte admin') on conflict do nothing;
