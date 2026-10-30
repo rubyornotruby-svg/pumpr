@@ -322,6 +322,7 @@
       <div class="sm-label">Actions</div>
       <div class="sm-list">
         <button type="button" class="sm-item" data-act="add"><span class="sm-dot sm-main">${ICON('<path d="M12 5v14M5 12h14"/>')}</span><span>Ajouter un trade</span></button>
+        <button type="button" class="sm-item" data-act="csv"><span class="sm-dot">${ICON('<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>')}</span><span>Importer un CSV</span></button>
         <button type="button" class="sm-item" data-act="brief"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>')}</span><span>Point du jour</span></button>
         <button type="button" class="sm-item" data-act="set"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>')}</span><span>Réglages</span></button>
         <button type="button" class="sm-item" data-act="cfg"><span class="sm-dot">${ICON('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}</span><span>Modifier ma configuration</span></button>
@@ -349,6 +350,7 @@
       const a = e.target.closest("[data-act]"); if (!a) return;
       const act = a.dataset.act; closeMenu(); closeFocus();
       if (act === "add") { const x = $("#addTop"); if (x) x.click(); }
+      else if (act === "csv") { if (window.pumprCsvImport) window.pumprCsvImport(); }
       else if (act === "brief") { const x = $("#briefBtn"); if (x) x.click(); }
       else if (act === "set") { const x = $("#setBtn"); if (x) x.click(); }
       else if (act === "cfg") { const x = $("#mCfg"); if (x) x.click(); }
