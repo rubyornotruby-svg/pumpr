@@ -207,7 +207,7 @@
   /* ---------- desk ---------- */
   function openDesk() {
     if (!started) { started = true; window.__pumprSyncReady = true; if (typeof window.startDesk === "function") window.startDesk(); mountAccount(); }
-    gate.classList.add("gone"); document.body.classList.remove("locked"); filmBadge(); mountMobile(); mountGuide();
+    gate.classList.add("gone"); document.body.classList.remove("locked"); filmBadge(); mountMobile(); mountGuide(); mountMenu();
     const db = $("#demoBadge"); if (db) setTimeout(() => db.remove(), matchMedia("(max-width:700px)").matches ? 3500 : 6000);
     if (!adminMode) P.touch().catch(() => {});
   }
@@ -276,6 +276,86 @@
       if (!matchMedia("(max-width:700px)").matches || e.target.closest("button,a,input")) return;
       const t = e.target.closest(".trade"); if (t) t.classList.toggle("open");
     });
+  }
+
+  /* ---------- menu ☰ : colonne latérale + modules en grand écran ---------- */
+  const ICON = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const MODS_MENU = [
+    ["stats", "Mes performances", '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'],
+    ["chart", "Graphique", '<path d="M7 4v16M7 8H5v6h2M17 4v16M17 6h2v8h-2M12 7v13M12 10h-2v5h2"/>'],
+    ["journal", "Journal de trades", '<path d="M4 4h12l4 4v12H4z"/><path d="M8 10h8M8 14h8M8 18h5"/>'],
+    ["risk", "Calcul du risque", '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/>'],
+    ["calendar", "Calendrier de performance", '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'],
+    ["watch", "Watchlist", '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>'],
+    ["quotes", "Cours de tous les actifs", '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>'],
+    ["news", "Actualités", '<path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2M8 9h5M8 13h5M8 17h3"/>'],
+    ["econ", "Calendrier économique", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>']
+  ];
+  let focused = null;
+  function closeFocus() {
+    if (!focused) return;
+    focused.classList.remove("focus"); const x = focused.querySelector(".fx-close"); if (x) x.remove();
+    document.body.classList.remove("focusing"); focused = null;
+    window.dispatchEvent(new Event("resize"));
+  }
+  function openFocus(id) {
+    const s = document.getElementById("m-" + id); if (!s || s.hidden) return;
+    closeFocus(); closeMenu();
+    focused = s; s.classList.add("focus"); document.body.classList.add("focusing");
+    const x = document.createElement("button"); x.type = "button"; x.className = "fx-close"; x.setAttribute("aria-label", "Fermer le grand écran");
+    x.innerHTML = ICON('<path d="M6 6l12 12M18 6 6 18"/>'); x.addEventListener("click", closeFocus);
+    s.appendChild(x); s.scrollTop = 0; x.focus();
+    window.dispatchEvent(new Event("resize"));
+  }
+  function closeMenu() { const m = $("#sideMenu"); if (!m || !m.classList.contains("open")) return; m.classList.remove("open"); $("#sideScrim").classList.remove("open"); document.body.classList.remove("menu-open"); m.setAttribute("aria-hidden", "true"); const b = $("#menuBtn"); if (b) { b.setAttribute("aria-expanded", "false"); b.focus(); } }
+  function openMenu() {
+    const m = $("#sideMenu"); drawMenu(); m.classList.add("open"); $("#sideScrim").classList.add("open"); document.body.classList.add("menu-open"); m.setAttribute("aria-hidden", "false");
+    $("#menuBtn").setAttribute("aria-expanded", "true"); const f = m.querySelector("button"); if (f) setTimeout(() => f.focus(), 60);
+  }
+  function drawMenu() {
+    const m = $("#sideMenu");
+    const vis = MODS_MENU.filter(([id]) => { const s = document.getElementById("m-" + id); return s && !s.hidden; });
+    const name = (profile && profile.nom) || (me && me.email.split("@")[0]) || "";
+    m.innerHTML = `<div class="sm-head"><span class="pz-logo"><i>P</i>Pumpr</span><button class="sm-x" type="button" aria-label="Fermer le menu">${ICON('<path d="M6 6l12 12M18 6 6 18"/>')}</button></div>
+      <div class="sm-label">Ouvrir en grand écran</div>
+      <div class="sm-list">${vis.map(([id, label, d]) => `<button type="button" class="sm-item" data-focus="${id}"><span class="sm-dot">${ICON(d)}</span><span>${label}</span><span class="sm-arrow" aria-hidden="true">⤢</span></button>`).join("")}</div>
+      <div class="sm-label">Actions</div>
+      <div class="sm-list">
+        <button type="button" class="sm-item" data-act="add"><span class="sm-dot sm-main">${ICON('<path d="M12 5v14M5 12h14"/>')}</span><span>Ajouter un trade</span></button>
+        <button type="button" class="sm-item" data-act="brief"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>')}</span><span>Point du jour</span></button>
+        <button type="button" class="sm-item" data-act="set"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>')}</span><span>Réglages</span></button>
+        <button type="button" class="sm-item" data-act="cfg"><span class="sm-dot">${ICON('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}</span><span>Modifier ma configuration</span></button>
+        <button type="button" class="sm-item" data-act="film"><span class="sm-dot">${ICON('<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/>')}</span><span>${filming() ? "Quitter le mode tournage" : "Mode tournage"}</span></button>
+      </div>
+      <div class="sm-foot">
+        <div class="sm-who"><b>${esc(name)}</b><small>${adminMode ? "Administrateur" : esc(me ? me.email : "")}</small></div>
+        ${admin ? `<a href="../admin/">Espace admin</a>` : ""}<a href="../">Site Pumpr</a><button type="button" data-act="out">Se déconnecter</button>
+      </div>`;
+  }
+  function mountMenu() {
+    if ($("#menuBtn")) return;
+    const top = document.querySelector(".top"), id = document.querySelector(".top .id"); if (!top || !id) return;
+    const b = document.createElement("button"); b.type = "button"; b.className = "ibtn menu-btn"; b.id = "menuBtn";
+    b.setAttribute("aria-label", "Ouvrir le menu"); b.setAttribute("aria-expanded", "false"); b.setAttribute("aria-controls", "sideMenu");
+    b.innerHTML = ICON('<path d="M4 7h16M4 12h16M4 17h16"/>');
+    id.prepend(b);
+    const scrim = document.createElement("div"); scrim.className = "side-scrim"; scrim.id = "sideScrim";
+    const m = document.createElement("aside"); m.className = "side-menu pz"; m.id = "sideMenu"; m.setAttribute("aria-label", "Menu"); m.setAttribute("aria-hidden", "true");
+    document.body.append(scrim, m);
+    b.addEventListener("click", openMenu); scrim.addEventListener("click", closeMenu);
+    m.addEventListener("click", async e => {
+      if (e.target.closest(".sm-x")) return closeMenu();
+      const f = e.target.closest("[data-focus]"); if (f) return openFocus(f.dataset.focus);
+      const a = e.target.closest("[data-act]"); if (!a) return;
+      const act = a.dataset.act; closeMenu(); closeFocus();
+      if (act === "add") { const x = $("#addTop"); if (x) x.click(); }
+      else if (act === "brief") { const x = $("#briefBtn"); if (x) x.click(); }
+      else if (act === "set") { const x = $("#setBtn"); if (x) x.click(); }
+      else if (act === "cfg") { const x = $("#mCfg"); if (x) x.click(); }
+      else if (act === "film") toggleFilming();
+      else if (act === "out") { if (adminMode) P.lockDemoAdmin(); else await P.signOut(); location.reload(); }
+    });
+    document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if ($("#sideMenu").classList.contains("open")) closeMenu(); else if (focused && !document.querySelector(".drawer.open")) closeFocus(); });
   }
 
   /* ---------- première connexion guidée (simple) ---------- */
