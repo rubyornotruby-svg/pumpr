@@ -207,7 +207,7 @@
   /* ---------- desk ---------- */
   function openDesk() {
     if (!started) { started = true; window.__pumprSyncReady = true; if (typeof window.startDesk === "function") window.startDesk(); mountAccount(); }
-    gate.classList.add("gone"); document.body.classList.remove("locked");
+    gate.classList.add("gone"); document.body.classList.remove("locked"); filmBadge();
     const db = $("#demoBadge"); if (db) setTimeout(() => db.remove(), 6000);
     if (!adminMode) P.touch().catch(() => {});
   }
@@ -219,6 +219,7 @@
     w.innerHTML = `<button class="btn acct-btn" type="button" id="acctBtn" aria-haspopup="menu" aria-expanded="false"><span class="acct-av">${esc(name.slice(0, 1).toUpperCase())}</span><span class="acct-name">${esc(name)}</span></button>
       <div class="acct-menu" id="acctMenu" role="menu"><div class="who"><b>${esc(name)}</b><small>${adminMode ? "Connecté en administrateur" : esc(me.email)}</small></div>
       <button type="button" role="menuitem" id="mCfg">Modifier ma configuration</button>
+      <button type="button" role="menuitem" id="mFilm">${filming() ? "Quitter le mode tournage" : "Mode tournage (données de démo)"}</button>
       ${admin ? `<a role="menuitem" href="../admin/">Espace admin</a>` : ""}
       <a role="menuitem" href="../">Site Pumpr</a>
       <button type="button" role="menuitem" class="out" id="mOut">Se déconnecter</button></div>`;
@@ -236,7 +237,48 @@
     document.addEventListener("click", e => { if (!w.contains(e.target)) set(false); });
     document.addEventListener("keydown", e => { if (e.key === "Escape") set(false); });
     $("#mCfg").addEventListener("click", () => { set(false); gate.classList.remove("gone"); document.body.classList.add("locked"); wizard(true); });
+    $("#mFilm").addEventListener("click", () => { set(false); toggleFilming(); });
     $("#mOut").addEventListener("click", async () => { if (adminMode) P.lockDemoAdmin(); else await P.signOut(); location.reload(); });
+  }
+
+  /* ---------- mode tournage : données de démo pour filmer ---------- */
+  const JKEY = "jarvis-trading-journal-v1", FKEY = "pumpr-film";
+  const filming = () => !!ls.get(FKEY, null);
+  function demoTrades() {
+    const syms = [["BTC", 67000, 0.02], ["ETH", 3400, 0.4], ["SOL", 160, 6], ["XRP", 0.6, 1500], ["DOGE", 0.16, 6000], ["AVAX", 32, 30]];
+    const setups = ["Tendance", "Cassure", "Rebond / support", "Retournement", "Range"];
+    const emos = ["Calme", "Confiant", "Calme", "Hésitant", "FOMO", "Calme", "Stressé"];
+    const notes = ["Entrée sur cassure confirmée, stop sous le support.", "Plan respecté, sortie au objectif.", "Entré trop tôt, pas attendu la confirmation.", "FOMO après une grosse bougie verte.", "Bon setup, gestion propre.", "Sortie partielle trop tôt."];
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const out = [], now = new Date();
+    for (let i = 0; i < 26; i++) {
+      const d = new Date(now); d.setDate(now.getDate() - Math.floor(i * 1.6) - 1);
+      const [sym, px, qty] = syms[Math.floor(rnd() * syms.length)];
+      const side = rnd() < 0.72 ? "long" : "short";
+      const entry = +(px * (0.94 + rnd() * 0.12)).toPrecision(5);
+      const win = rnd() < 0.6, move = (0.008 + rnd() * 0.035) * (win ? 1 : -1) * (side === "long" ? 1 : -1);
+      const exit = +(entry * (1 + move)).toPrecision(5), stop = +(entry * (side === "long" ? 0.98 : 1.02)).toPrecision(5);
+      const emo = emos[Math.floor(rnd() * emos.length)];
+      out.push({ id: "demo" + i, date: new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10), symbol: sym, side, quantity: String(qty), entry: String(entry), exit: i === 0 ? "" : String(exit), fees: "0", stop: String(stop), setup: setups[Math.floor(rnd() * setups.length)], emotion: emo, plan: emo === "FOMO" || emo === "Stressé" ? "Non" : win ? "Oui" : "En partie", notes: notes[Math.floor(rnd() * notes.length)] });
+    }
+    return out;
+  }
+  function toggleFilming() {
+    if (!filming()) {
+      let backup = null; try { backup = localStorage.getItem(JKEY); } catch (e) {}
+      ls.set(FKEY, { backup }); ls.set(JKEY, demoTrades());
+    } else {
+      const f = ls.get(FKEY, {}) || {};
+      try { if (f.backup == null) localStorage.removeItem(JKEY); else localStorage.setItem(JKEY, f.backup); localStorage.removeItem(FKEY); } catch (e) {}
+    }
+    location.reload();
+  }
+  function filmBadge() {
+    if (!filming() || $("#filmBadge")) return;
+    const b = document.createElement("div"); b.id = "filmBadge"; b.className = "film-badge";
+    b.innerHTML = `DONNÉES DE DÉMO <button type="button" aria-label="Quitter le mode tournage">✕</button>`;
+    b.querySelector("button").addEventListener("click", toggleFilming);
+    document.body.appendChild(b);
   }
 
   /* synchronisation des réglages du desk vers le compte (appelée par le desk) */

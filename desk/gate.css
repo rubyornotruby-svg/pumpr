@@ -68,3 +68,5 @@ body.locked .app{visibility:hidden}
 .dfoot{margin-top:28px;padding:18px 4px 0;border-top:1px solid var(--line);color:var(--faint);font-size:12px;line-height:1.6}
 .dfoot p{margin:0 0 6px}
 .dfoot a{color:var(--dim)}
+.film-badge{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:95;display:flex;align-items:center;gap:10px;padding:8px 10px 8px 16px;border-radius:999px;background:#ff4fd8;color:#1a0016;font:800 13px/1 var(--pz-display,system-ui);letter-spacing:.06em;box-shadow:0 10px 30px -8px rgba(255,79,216,.7)}
+.film-badge button{appearance:none;border:0;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.18);color:inherit;cursor:pointer;font-weight:800}
