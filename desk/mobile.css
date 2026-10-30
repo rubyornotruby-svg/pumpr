@@ -1,0 +1,73 @@
+/* Pumpr · desk sur téléphone (≤ 700 px) : barre du haut compacte, navigation en bas, bouton + flottant, trades repliés. */
+.mnav,.fab{display:none}
+
+@media (max-width:700px){
+  .app{padding-top:10px;padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+
+  /* barre du haut : logo + bonjour à gauche, 3 icônes à droite */
+  .top{flex-wrap:nowrap;gap:10px;margin-bottom:12px}
+  .id{gap:10px;min-width:0;flex:1}
+  .id>div{min-width:0}
+  .id h1{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .id small{font-size:12px}
+  .logo{width:36px;height:36px;border-radius:11px;flex:none}
+  .logo b{font-size:17px}
+  .top-r{flex-wrap:nowrap;gap:6px;margin-left:0}
+  .top-r .chip,.top-r .clock,#addTop{display:none}
+  #briefBtn{width:38px;height:38px;padding:0;font-size:0;border-radius:50%}
+  #briefBtn::before{content:"☀";font-size:17px}
+  .acct-btn{padding:4px;border-radius:50%}
+  .acct-name{display:none}
+
+  /* panneaux plus serrés */
+  .layout,.work,.dock{gap:12px}
+  .ch{padding:14px 14px 10px}
+  .cb{padding:0 14px 14px}
+  .kpis{grid-template-columns:1fr 1fr;padding:0 14px 14px;gap:8px}
+  .kpi{padding:11px 12px}
+  .kpi b{font-size:18px}
+  .kpi.eq{grid-column:1/-1}
+  .chart-box{height:340px;margin:0 14px 14px}
+  .chart-tools{padding:0 14px 10px;gap:8px}
+  .asset-head{padding:0 14px 12px}
+  .seg button{padding:6px 10px}
+
+  /* trades repliés : on touche pour voir les détails et les boutons */
+  .trade{padding:11px 13px;cursor:pointer;gap:2px 10px}
+  .trade .meta br,.trade .meta .tag,.trade .tnotes,.trade .tacts{display:none}
+  .trade.open .meta br,.trade.open .tnotes{display:block}
+  .trade.open .meta .tag{display:inline-flex}
+  .trade.open .tacts{display:flex}
+  .trade::after{content:"⌄";grid-column:1/-1;justify-self:center;font-size:12px;line-height:1;color:var(--faint);margin-top:2px;transition:transform .3s}
+  .trade.open::after{transform:rotate(180deg)}
+  .jbar{flex-wrap:wrap}
+
+  /* navigation du bas */
+  .mnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:70;
+    padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));
+    background:rgba(10,12,20,.94);border-top:1px solid var(--line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  .mnav button{appearance:none;border:0;background:none;color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;font:600 10.5px/1.1 var(--body);border-radius:12px;cursor:pointer}
+  .mnav button svg{width:21px;height:21px}
+  .mnav button[aria-current="true"]{color:var(--cyan)}
+  .mnav button[hidden]{display:none}
+
+  /* bouton + flottant */
+  .fab{display:grid;place-items:center;position:fixed;z-index:71;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));
+    width:58px;height:58px;border-radius:18px;border:0;background:var(--cyan);color:var(--on-accent,#0b1200);box-shadow:0 14px 34px -10px var(--cyan);cursor:pointer;transition:transform .25s var(--ease)}
+  .fab:active{transform:scale(.94)}
+  .fab svg{width:26px;height:26px}
+
+  /* messages au-dessus de la barre du bas */
+  .toast{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+  .pz-demo{bottom:calc(150px + env(safe-area-inset-bottom,0px));font-size:11.5px}
+  .film-badge{top:auto;left:max(16px,env(safe-area-inset-left,0px));transform:none;bottom:calc(88px + env(safe-area-inset-bottom,0px));padding:5px 6px 5px 11px;font-size:10.5px;gap:7px}
+  .film-badge button{width:20px;height:20px}
+
+  /* un tiroir ouvert passe devant tout */
+  body:has(.drawer.open) .mnav,body:has(.drawer.open) .fab,body:has(.drawer.open) .film-badge,body.locked .mnav,body.locked .fab{display:none}
+
+  /* tiroirs plein écran */
+  .drawer{top:0;right:0;bottom:0;width:100%;border-radius:0;border-left:0}
+  .acct-menu{right:-4px;min-width:min(280px,calc(100vw - 32px))}
+  .dfoot{margin-bottom:10px}
+}

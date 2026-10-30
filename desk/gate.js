@@ -207,8 +207,8 @@
   /* ---------- desk ---------- */
   function openDesk() {
     if (!started) { started = true; window.__pumprSyncReady = true; if (typeof window.startDesk === "function") window.startDesk(); mountAccount(); }
-    gate.classList.add("gone"); document.body.classList.remove("locked"); filmBadge();
-    const db = $("#demoBadge"); if (db) setTimeout(() => db.remove(), 6000);
+    gate.classList.add("gone"); document.body.classList.remove("locked"); filmBadge(); mountMobile(); mountGuide();
+    const db = $("#demoBadge"); if (db) setTimeout(() => db.remove(), matchMedia("(max-width:700px)").matches ? 3500 : 6000);
     if (!adminMode) P.touch().catch(() => {});
   }
 
@@ -239,6 +239,73 @@
     $("#mCfg").addEventListener("click", () => { set(false); gate.classList.remove("gone"); document.body.classList.add("locked"); wizard(true); });
     $("#mFilm").addEventListener("click", () => { set(false); toggleFilming(); });
     $("#mOut").addEventListener("click", async () => { if (adminMode) P.lockDemoAdmin(); else await P.signOut(); location.reload(); });
+  }
+
+  /* ---------- téléphone : navigation du bas, bouton +, trades repliables ---------- */
+  function mountMobile() {
+    if ($("#mnav")) return;
+    const ic = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+    const TABS = [
+      ["stats", "Résumé", ic('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>')],
+      ["chart", "Graphique", ic('<path d="M7 4v16M7 8H5v6h2M17 4v16M17 6h2v8h-2M12 7v13M12 10h-2v5h2"/>')],
+      ["journal", "Journal", ic('<path d="M4 4h12l4 4v12H4z"/><path d="M8 10h8M8 14h8M8 18h5"/>')],
+      ["risk", "Risque", ic('<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/>')],
+      ["watch", "Marchés", ic('<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>')]
+    ];
+    const nav = document.createElement("nav"); nav.className = "mnav"; nav.id = "mnav"; nav.setAttribute("aria-label", "Sections du desk");
+    nav.innerHTML = TABS.map(([id, label, svg]) => `<button type="button" data-go="${id}">${svg}<span>${label}</span></button>`).join("");
+    const fab = document.createElement("button"); fab.className = "fab"; fab.type = "button"; fab.setAttribute("aria-label", "Ajouter un trade");
+    fab.innerHTML = ic('<path d="M12 5v14M5 12h14"/>');
+    document.body.append(nav, fab);
+    fab.addEventListener("click", () => { const b = $("#addTop"); if (b) b.click(); });
+    const sec = id => document.getElementById("m-" + id);
+    const refresh = () => TABS.forEach(([id]) => { const s = sec(id), b = nav.querySelector(`[data-go="${id}"]`); if (b) b.hidden = !s || s.hidden; });
+    refresh(); new MutationObserver(refresh).observe($("#work") || document.body, { attributes: true, subtree: true, attributeFilter: ["hidden"] });
+    nav.addEventListener("click", e => {
+      const b = e.target.closest("[data-go]"); if (!b) return; const s = sec(b.dataset.go); if (!s) return;
+      window.scrollTo({ top: s.getBoundingClientRect().top + scrollY - 12, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    });
+    const mark = () => {
+      let cur = null;
+      TABS.forEach(([id]) => { const s = sec(id); if (s && !s.hidden && s.getBoundingClientRect().top < innerHeight * 0.4) cur = id; });
+      nav.querySelectorAll("[data-go]").forEach(b => b.setAttribute("aria-current", String(b.dataset.go === cur)));
+    };
+    addEventListener("scroll", mark, { passive: true }); mark();
+    const jl = $("#jlist");
+    if (jl) jl.addEventListener("click", e => {
+      if (!matchMedia("(max-width:700px)").matches || e.target.closest("button,a,input")) return;
+      const t = e.target.closest(".trade"); if (t) t.classList.toggle("open");
+    });
+  }
+
+  /* ---------- première connexion guidée (simple) ---------- */
+  const GKEY = "pumpr-guide-v1";
+  function mountGuide() {
+    if ($("#guide") || filming()) return;
+    const st = ls.get(GKEY, {}) || {};
+    if (st.done) return;
+    const work = $("#work"); if (!work) return;
+    const STEPS = [
+      ["trade", "Ajoute ton premier trade", "Bouton « + Ajouter un trade » : actif, prix d'entrée, quantité. Le reste est facultatif."],
+      ["risk", "Règle ton risque", "Dans « Calcul du risque », entre ton capital et ton risque par trade : Pumpr calcule ta taille de position."],
+      ["fav", "Choisis tes marchés", "Dans la watchlist, touche l'étoile ☆ d'un actif pour le garder en favori."]
+    ];
+    const card = document.createElement("section");
+    card.className = "card w12 guide"; card.id = "guide"; card.setAttribute("aria-label", "Bien démarrer");
+    const draw = () => {
+      const s = ls.get(GKEY, {}) || {};
+      const n = STEPS.filter(x => s[x[0]]).length;
+      card.innerHTML = `<div class="ch"><div><h2>Bien démarrer · ${n}/${STEPS.length}</h2><p>Trois gestes pour prendre le desk en main.</p></div><button class="btn btn-sm" type="button" id="gClose">${n === STEPS.length ? "Terminé" : "Masquer"}</button></div>
+        <div class="cb"><ol class="gsteps">${STEPS.map(([k, t, d]) => `<li class="${s[k] ? "ok" : ""}"><i aria-hidden="true">${s[k] ? "✓" : STEPS.findIndex(x => x[0] === k) + 1}</i><div><b>${t}</b><span>${d}</span></div></li>`).join("")}</ol></div>`;
+      $("#gClose").onclick = () => { ls.set(GKEY, Object.assign(ls.get(GKEY, {}) || {}, { done: true })); card.remove(); };
+    };
+    const tick = k => { const s = ls.get(GKEY, {}) || {}; if (s[k]) return; s[k] = true; ls.set(GKEY, s); draw(); };
+    work.prepend(card); draw();
+    const hasTrades = () => { const t = ls.get(JKEY, []); return Array.isArray(t) && t.length > 0; };
+    if (hasTrades()) tick("trade");
+    const jl = $("#jlist"); if (jl) new MutationObserver(() => { if (hasTrades()) tick("trade"); }).observe(jl, { childList: true });
+    ["#rCap", "#rPct", "#rStop", "#rEntry"].forEach(id => { const el = $(id); if (el) el.addEventListener("input", () => tick("risk"), { once: true }); });
+    const wl = $("#wl"); if (wl) wl.addEventListener("click", e => { if (e.target.closest("[data-fav]")) tick("fav"); });
   }
 
   /* ---------- mode tournage : données de démo pour filmer ---------- */

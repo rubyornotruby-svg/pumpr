@@ -70,3 +70,13 @@ body.locked .app{visibility:hidden}
 .dfoot a{color:var(--dim)}
 .film-badge{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:95;display:flex;align-items:center;gap:10px;padding:8px 10px 8px 16px;border-radius:999px;background:#ff4fd8;color:#1a0016;font:800 13px/1 var(--pz-display,system-ui);letter-spacing:.06em;box-shadow:0 10px 30px -8px rgba(255,79,216,.7)}
 .film-badge button{appearance:none;border:0;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.18);color:inherit;cursor:pointer;font-weight:800}
+.guide{border-color:rgba(198,255,61,.28)!important}
+.gsteps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.gsteps li{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.02);min-width:0}
+.gsteps i{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12px/1 var(--mono);font-style:normal;background:rgba(255,255,255,.06);color:var(--dim)}
+.gsteps li.ok i{background:var(--cyan);color:var(--on-accent,#0b1200)}
+.gsteps li.ok b{text-decoration:line-through;color:var(--dim)}
+.gsteps b{display:block;font:700 14px/1.3 var(--body)}
+.gsteps span{display:block;font-size:12.5px;color:var(--dim);margin-top:3px;line-height:1.45}
+@media(max-width:860px){.gsteps{grid-template-columns:1fr}}
+@media(max-width:700px){body.locked .pz-demo{bottom:calc(14px + env(safe-area-inset-bottom,0px))}}

@@ -283,6 +283,7 @@ body.lite{background:radial-gradient(ellipse 70% 50% at 40% -10%,rgba(69,217,240
 <link rel="stylesheet" href="../assets/pumpr.css">
 <link rel="stylesheet" href="gate.css">
 <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="mobile.css">
 </head>
 <body>
 <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -534,7 +535,7 @@ const JKEY="jarvis-trading-journal-v1";let trades=store.get(JKEY,[]);if(!Array.i
 const pnl=t=>(t.exit===""||t.exit==null)?null:((Number(t.exit)-Number(t.entry))*(t.side==="short"?-1:1)*Number(t.quantity))-Number(t.fees||0);
 const rOf=t=>{const p=pnl(t),r=Math.abs(Number(t.entry)-Number(t.stop))*Number(t.quantity);return p!==null&&Number(t.stop)>0&&r>0?p/r:null};
 const saveJ=()=>store.set(JKEY,trades);
-let shown=10,confirmId=null;
+const PAGE=matchMedia("(max-width:700px)").matches?5:10;let shown=PAGE,confirmId=null;
 function renderJournal(){const q=$("#jSearch").value.trim().toLowerCase(),f=$("#jFilter").value;
   const list=trades.filter(t=>{const p=pnl(t),txt=(t.symbol+" "+(t.notes||"")+" "+(t.setup||"")).toLowerCase();return(!q||txt.includes(q))&&(f==="all"||(f==="closed"&&p!==null)||(f==="open"&&p===null)||(f==="wins"&&p!==null&&p>0)||(f==="losses"&&p!==null&&p<0))}).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id)));
   const box=$("#jlist");
@@ -543,7 +544,7 @@ function renderJournal(){const q=$("#jSearch").value.trim().toLowerCase(),f=$("#
   else box.innerHTML=list.slice(0,shown).map((t,i)=>{const p=pnl(t),r=rOf(t),c=confirmId===t.id;return `<article class="trade" style="animation-delay:${Math.min(i,8)*40}ms"><div class="t1"><b>${esc(t.symbol)}</b><span class="side ${t.side==="short"?"short":"long"}">${t.side==="short"?"SHORT":"LONG"}</span><span class="note">${esc(t.date)}</span></div><div class="pnl ${p===null?"":p>=0?"up":"down"}">${p===null?"En cours":money(p)}${r!==null?`<div class="note">${(r>0?"+":"")+nf(2,2).format(r)} R</div>`:""}</div><div class="meta">Qté ${esc(t.quantity)} · entrée ${esc(t.entry)}${t.exit!==""&&t.exit!=null?" · sortie "+esc(t.exit):""}${t.stop?" · stop "+esc(t.stop):""}<br>${t.setup?`<span class="tag">${esc(t.setup)}</span>`:""}${t.emotion?`<span class="tag">${esc(t.emotion)}</span>`:""}${t.plan?`<span class="tag">Plan : ${esc(t.plan)}</span>`:""}</div>${t.notes?`<div class="tnotes">${esc(t.notes)}</div>`:""}<div class="tacts">${c?`<span class="note">Supprimer définitivement ?</span><button class="btn btn-sm" type="button" data-no>Non</button><button class="btn btn-sm btn-danger" type="button" data-del="${esc(t.id)}">Oui, supprimer</button>`:`<button class="btn btn-sm" type="button" data-edit="${esc(t.id)}">Modifier</button><button class="btn btn-sm" type="button" data-ask="${esc(t.id)}">Supprimer</button>`}</div></article>`}).join("");
   $("#jMore").hidden=list.length<=shown;$("#jMore").textContent=`Afficher plus (${Math.max(0,list.length-shown)} restants)`;$("#jCount").textContent=list.length+" / "+trades.length+" trade"+(trades.length>1?"s":"")}
 $("#jlist").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.ask){confirmId=b.dataset.ask;renderJournal()}else if(b.hasAttribute("data-no")){confirmId=null;renderJournal()}else if(b.dataset.del){trades=trades.filter(t=>t.id!==b.dataset.del);confirmId=null;saveJ();renderAll();toast("Trade supprimé.")}else if(b.dataset.edit)openForm(trades.find(t=>t.id===b.dataset.edit))});
-$("#jSearch").addEventListener("input",()=>{shown=10;renderJournal()});$("#jFilter").addEventListener("change",()=>{shown=10;renderJournal()});$("#jMore").addEventListener("click",()=>{shown+=10;renderJournal()});
+$("#jSearch").addEventListener("input",()=>{shown=PAGE;renderJournal()});$("#jFilter").addEventListener("change",()=>{shown=PAGE;renderJournal()});$("#jMore").addEventListener("click",()=>{shown+=PAGE;renderJournal()});
 $("#exportJ").addEventListener("click",()=>{if(!trades.length){toast("Le journal est vide.");return}const blob=new Blob([JSON.stringify({app:"pumpr",version:1,exported:new Date().toISOString(),trades},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="journal-pumpr-"+todayISO()+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},600);toast("Journal exporté dans Téléchargements.")});
 $("#importJ").addEventListener("change",async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;try{const d=JSON.parse(await f.text()),list=Array.isArray(d)?d:d.trades;if(!Array.isArray(list))throw 0;const ids=new Set(trades.map(t=>t.id));let n=0;list.forEach(t=>{if(t&&t.symbol&&t.date&&t.entry!=null&&!ids.has(t.id)){trades.push(Object.assign({},t,{id:t.id||Date.now().toString(36)+Math.random().toString(36).slice(2,7)}));n++}});saveJ();renderAll();toast(n+" trade(s) importé(s).")}catch(err){toast("Fichier non reconnu : choisis un export du journal Pumpr.")}});
 
