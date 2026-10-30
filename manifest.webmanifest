@@ -1,0 +1,16 @@
+{
+  "name": "Pumpr",
+  "short_name": "Pumpr",
+  "description": "Le desk de trading en français : journal, stats, graphique crypto en direct.",
+  "lang": "fr",
+  "start_url": "./desk/",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#06070c",
+  "theme_color": "#06070c",
+  "icons": [
+    { "src": "assets/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/img/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
