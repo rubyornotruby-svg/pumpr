@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pumpr en images</title>
+<meta name="description" content="Le desk Pumpr en captures : journal, statistiques, calendrier, calcul du risque, import CSV et version mobile.">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<meta name="theme-color" content="#06070c">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Pumpr">
+<meta property="og:title" content="Pumpr en images">
+<meta property="og:description" content="Le desk Pumpr en captures : journal, statistiques, import CSV et version mobile.">
+<meta property="og:url" content="https://rubyornotruby-svg.github.io/jarvis-trading/decouvrir.html">
+<meta property="og:image" content="https://rubyornotruby-svg.github.io/jarvis-trading/assets/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pumpr, le desk de trading en français">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="assets/fonts.css?v=202610301651">
+<link rel="stylesheet" href="assets/pumpr.css?v=202610301651">
+<style>
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--pz-bg);color:var(--pz-text);font:500 16px/1.6 var(--pz-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.glow{position:fixed;inset:-20% -10% auto;height:120vh;pointer-events:none;z-index:0;background:radial-gradient(40% 35% at 75% 10%,rgba(139,92,246,.28),transparent 70%),radial-gradient(35% 30% at 15% 20%,rgba(198,255,61,.14),transparent 70%),radial-gradient(30% 25% at 60% 60%,rgba(255,79,216,.10),transparent 70%)}
+.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 80%)}
+.wrap{position:relative;z-index:1;width:min(1180px,100% - 32px);margin:0 auto}
+.nav{display:flex;align-items:center;gap:14px;height:72px}
+.nav .sp{flex:1}
+header.intro{padding:40px 0 30px;max-width:720px}
+.kicker{font:700 12px/1 var(--pz-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--pz-lime)}
+h1{font:900 clamp(34px,5.4vw,58px)/1.02 var(--pz-display);letter-spacing:-.035em;margin:16px 0 14px;text-wrap:balance}
+.lead{color:#b9c0d4;font-size:18px;margin:0}
+.demo-note{display:inline-flex;gap:8px;align-items:center;margin-top:18px;padding:7px 12px;border-radius:999px;background:rgba(255,79,216,.12);color:#ff9ce9;font:700 12px/1.3 var(--pz-mono);letter-spacing:.04em}
+.shot{display:grid;grid-template-columns:1fr 1.35fr;gap:36px;align-items:center;padding:46px 0;border-top:1px solid var(--pz-line)}
+.shot.rev{grid-template-columns:1.35fr 1fr}
+.shot.rev .txt{order:2}
+@media(max-width:860px){.shot,.shot.rev{grid-template-columns:1fr;gap:20px}.shot.rev .txt{order:0}}
+.txt h2{font:800 clamp(24px,3vw,32px)/1.1 var(--pz-display);letter-spacing:-.025em;margin:10px 0 12px}
+.txt p{color:#b9c0d4;margin:0}
+.txt ul{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:8px;color:#c6cce0}
+.txt li{display:flex;gap:10px}.txt li::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--pz-lime);margin-top:10px}
+figure{margin:0}
+figure img{display:block;width:100%;height:auto;border-radius:18px;border:1px solid var(--pz-line2);box-shadow:0 40px 100px -40px rgba(139,92,246,.55)}
+figcaption{margin-top:10px;color:var(--pz-dim);font-size:13px}
+.phones{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.phones img{border-radius:28px}
+@media(max-width:600px){.phones{grid-template-columns:1fr 1fr}.phones figure:last-child{display:none}}
+.cta{margin:30px 0 60px;padding:56px 24px;text-align:center;border-radius:28px;background:radial-gradient(60% 80% at 50% 0%,rgba(198,255,61,.16),transparent 70%),var(--pz-panel2);border:1px solid var(--pz-line)}
+.cta h2{font:800 clamp(26px,4vw,40px)/1.1 var(--pz-display);margin:0 0 10px;letter-spacing:-.03em}
+.cta p{color:#b9c0d4;margin:0 0 24px}
+footer{border-top:1px solid var(--pz-line);padding:28px 0 50px;color:var(--pz-dim);font-size:13px}
+footer a{color:var(--pz-muted)}
+</style>
+</head>
+<body class="pz">
+<div class="glow" aria-hidden="true"></div><div class="grid-bg" aria-hidden="true"></div>
+<div class="wrap">
+  <nav class="nav" aria-label="Navigation"><a class="pz-logo" href="./"><i>P</i>Pumpr</a><span class="sp"></span><a class="pz-btn pz-btn-sm" href="./">← Retour au site</a></nav>
+
+  <header class="intro">
+    <div class="kicker">Le desk en images</div>
+    <h1>Voilà ce qui t'attend une fois connecté.</h1>
+    <p class="lead">Des captures du vrai desk Pumpr, sur ordinateur et sur téléphone.</p>
+    <span class="demo-note">Captures réalisées avec des données de démo</span>
+  </header>
+
+  <section class="shot" aria-labelledby="t1">
+    <div class="txt"><div class="kicker">Résumé</div><h2 id="t1">Tes performances d'un coup d'œil</h2>
+      <p>Pumpr calcule tout à partir de ton journal, sans tableur.</p>
+      <ul><li>Taux de réussite et R moyen</li><li>Ta meilleure stratégie</li><li>Le pourcentage de trades où tu as respecté ton plan</li><li>La courbe de ton P&amp;L cumulé</li></ul></div>
+    <figure><img src="assets/img/captures/m-stats.webp" width="1400" height="563" alt="Panneau Mes performances : 25 trades clôturés, 64 % de réussite, R moyen +0,45, plan respecté 52 %, P&amp;L cumulé +235,57 $ avec sa courbe" loading="lazy"></figure>
+  </section>
+
+  <section class="shot rev" aria-labelledby="t2">
+    <div class="txt"><div class="kicker">Journal</div><h2 id="t2">Chaque trade, avec ce qui compte</h2>
+      <p>Pas juste un prix d'entrée et de sortie : ton émotion, ta stratégie et si tu as suivi ton plan.</p>
+      <ul><li>P&amp;L et R calculés tout seuls</li><li>Recherche et filtres (gagnants, perdants, en cours)</li><li>Export et import pour ne jamais rien perdre</li></ul></div>
+    <figure><img src="assets/img/captures/m-journal.webp" width="1400" height="1235" alt="Journal de trades avec plusieurs trades : actif, sens long ou short, résultat en dollars et en R, stratégie, émotion et note" loading="lazy"></figure>
+  </section>
+
+  <section class="shot" aria-labelledby="t3">
+    <div class="txt"><div class="kicker">Import</div><h2 id="t3">Tes trades Binance en un clic</h2>
+      <p>Glisse ton export CSV de Binance, Bybit ou de ton tableur : Pumpr reconnaît les colonnes et reconstitue tes trades.</p>
+      <ul><li>Aperçu avant d'importer</li><li>Pas de doublons si tu réimportes</li><li>Le fichier reste dans ton navigateur</li></ul></div>
+    <figure><img src="assets/img/captures/csv.webp" width="1360" height="1500" alt="Fenêtre Importer des trades : format Binance reconnu, colonnes associées automatiquement, résumé des trades trouvés" loading="lazy"></figure>
+  </section>
+
+  <section class="shot rev" aria-labelledby="t4">
+    <div class="txt"><div class="kicker">Calendrier et risque</div><h2 id="t4">Tes jours verts, tes jours rouges, ta taille de position</h2>
+      <p>Le calendrier montre ton mois en couleurs. Le calcul du risque te donne la bonne taille avant d'entrer.</p></div>
+    <div class="phones" style="grid-template-columns:1fr 1fr">
+      <figure><img src="assets/img/captures/m-calendar.webp" width="832" height="1044" alt="Calendrier de performance du mois avec les jours gagnants en vert et perdants en rouge" loading="lazy"></figure>
+      <figure><img src="assets/img/captures/m-risk.webp" width="832" height="1044" alt="Calcul du risque : capital, risque en pourcentage, stop, perte maximale et taille de position" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section class="shot" aria-labelledby="t5">
+    <div class="txt"><div class="kicker">Ton desk</div><h2 id="t5">Configuré pour toi en une minute</h2>
+      <p>Pseudo, niveau, marchés, risque, couleur et modules : quatre questions à la première connexion.</p></div>
+    <figure><img src="assets/img/captures/wizard.webp" width="1160" height="728" alt="Écran Configurons ton desk, étape 2 sur 4 : choix des marchés tradés" loading="lazy"></figure>
+  </section>
+
+  <section class="shot rev" aria-labelledby="t6" style="grid-template-columns:1fr">
+    <div class="txt" style="order:0;max-width:640px"><div class="kicker">Sur téléphone</div><h2 id="t6">Ton desk dans la poche</h2>
+      <p>Navigation en bas, bouton + toujours à portée de pouce, menu ☰ pour ouvrir chaque module en plein écran.</p></div>
+    <div class="phones">
+      <figure><img src="assets/img/captures/mobile-home.webp" width="585" height="996" alt="Desk sur téléphone : résumé des performances et barre de navigation" loading="lazy"></figure>
+      <figure><img src="assets/img/captures/mobile-journal.webp" width="585" height="996" alt="Journal de trades sur téléphone, trades repliés" loading="lazy"></figure>
+      <figure><img src="assets/img/captures/mobile-menu.webp" width="585" height="996" alt="Menu latéral ouvert avec les modules à ouvrir en grand écran" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <div class="cta"><h2>Prêt à noter comme un pro ?</h2><p>Découvre les prix et réserve ta place.</p><a class="pz-btn pz-btn-main" href="./#prix">Voir le prix</a></div>
+
+  <footer>Pumpr est un outil d'organisation et d'analyse, pas un conseil en investissement. Le trading comporte un risque élevé de perte en capital. · <a href="mentions-legales.html">Mentions légales</a> · <a href="retractation.html">Se rétracter</a></footer>
+</div>
+</body>
+</html>
