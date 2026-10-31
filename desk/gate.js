@@ -231,7 +231,7 @@
     if (app && !$("#dFoot")) {
       const f = document.createElement("footer"); f.id = "dFoot"; f.className = "dfoot";
       f.innerHTML = `<p>Pumpr est un outil d'organisation et d'analyse, pas un conseil en investissement. Il ne passe aucun ordre. Le trading comporte un risque élevé de perte en capital.</p>
-        <p>Cours crypto : Binance · Graphiques, actualités et calendrier économique : TradingView · Météo : Open-Meteo · <a href="../mentions-legales.html">Mentions légales</a> · <a href="../mentions-legales.html#cgv">CGV</a> · <a href="../mentions-legales.html#confidentialite">Confidentialité</a> · <a href="../retractation.html">Se rétracter du contrat</a></p>`;
+        <p>Cours crypto : Binance · Graphiques, actualités et calendrier économique : TradingView · <a href="../mentions-legales.html">Mentions légales</a> · <a href="../mentions-legales.html#cgv">CGV</a> · <a href="../mentions-legales.html#confidentialite">Confidentialité</a> · <a href="../retractation.html">Se rétracter du contrat</a></p>`;
       app.appendChild(f);
     }
     const btn = $("#acctBtn"), menu = $("#acctMenu");

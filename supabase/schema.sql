@@ -150,3 +150,96 @@ grant execute on function public.nb_inscrits() to anon, authenticated;
 -- Premier administrateur : remplace l'adresse ci-dessous ----------------
 insert into public.admins (email) values (lower('ADMIN_EMAIL')) on conflict do nothing;
 insert into public.acces (email, note) values (lower('ADMIN_EMAIL'), 'compte admin') on conflict do nothing;
+
+-- =====================================================================
+-- 8. SÉCURITÉ RENFORCÉE (audit du 31/10/2026)
+--    Tout ce bloc peut être relancé sans risque. À garder APRÈS le reste.
+-- =====================================================================
+
+-- 8a. Admin seulement si son e-mail est CONFIRMÉ (même si « Confirm email »
+--     était désactivé par erreur, personne ne peut devenir admin en
+--     s'inscrivant avec l'adresse admin avant toi).
+create or replace function public.est_admin() returns boolean
+language sql stable security definer set search_path = public, auth as $$
+  select exists (
+    select 1 from public.admins a
+    join auth.users u on lower(u.email) = a.email
+    where u.id = auth.uid() and u.email_confirmed_at is not null
+  );
+$$;
+revoke execute on function public.est_admin() from public, anon;
+grant execute on function public.est_admin() to authenticated;
+
+-- 8b. Personne de l'extérieur ne peut tester « cet e-mail a-t-il acheté ? »
+revoke execute on function public.email_a_achete(text) from public, anon;
+grant execute on function public.email_a_achete(text) to authenticated;
+
+-- 8c. Création de compte refusée par le serveur si l'e-mail n'a pas d'accès
+--     (à retirer le jour où on ouvre des comptes gratuits).
+create or replace function public.verifier_achat_inscription() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.acces where email = lower(new.email) and actif) then
+    raise exception 'PUMPR_PAS_ACHAT';
+  end if;
+  return new;
+end $$;
+drop trigger if exists pumpr_verifier_achat on auth.users;
+create trigger pumpr_verifier_achat before insert on auth.users
+  for each row execute function public.verifier_achat_inscription();
+
+-- 8d. Profil : l'utilisateur ne peut modifier que ses réglages, pas son e-mail
+revoke insert, update on public.profils from anon, authenticated;
+grant insert (user_id, email, nom, config, configure, derniere_connexion) on public.profils to authenticated;
+grant update (nom, config, configure, derniere_connexion) on public.profils to authenticated;
+drop policy if exists "profils_creation" on public.profils;
+create policy "profils_creation" on public.profils for insert to authenticated
+  with check (user_id = auth.uid() and email = public.email_courant() and public.email_a_achete(public.email_courant()));
+alter table public.profils drop constraint if exists profils_tailles;
+alter table public.profils add constraint profils_tailles
+  check (length(coalesce(nom, '')) <= 40 and pg_column_size(config) < 20000);
+
+-- 8e. Journal : taille maximale (évite qu'un compte remplisse la base)
+alter table public.journaux drop constraint if exists journaux_taille;
+alter table public.journaux add constraint journaux_taille check (octet_length(trades::text) < 3000000);
+
+-- 8f. Réglages du site : lien d'achat https obligatoire, textes courts
+alter table public.reglages_site drop constraint if exists reglages_controles;
+alter table public.reglages_site add constraint reglages_controles check (
+  coalesce(lien_achat, '') ~ '^(https://[^[:space:]]{4,500})?$'
+  and length(coalesce(prix, '')) <= 40 and length(coalesce(annonce, '')) <= 160);
+
+-- 8g. Rétractation : anti-spam (3 par e-mail et par heure, 30 au total par 10 min)
+create or replace function public.demander_retractation(e text, n text, c text, m text) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare rid uuid; em text := lower(trim(coalesce(e, '')));
+begin
+  if em !~ '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$' or length(em) > 200 then raise exception 'PUMPR_EMAIL'; end if;
+  if (select count(*) from public.retractations where email = em and cree_le > now() - interval '1 hour') >= 3
+     or (select count(*) from public.retractations where cree_le > now() - interval '10 minutes') >= 30 then
+    raise exception 'PUMPR_TROP';
+  end if;
+  insert into public.retractations (email, nom, commande, message)
+  values (em, left(n, 80), left(c, 80), left(m, 600)) returning id into rid;
+  return rid;
+end $$;
+revoke execute on function public.demander_retractation(text, text, text, text) from public;
+grant execute on function public.demander_retractation(text, text, text, text) to anon, authenticated;
+
+-- 8h. Liste d'attente : inscription uniquement par cette fonction (anti-spam,
+--     et on ne peut plus savoir si un e-mail est déjà inscrit).
+drop policy if exists "attente_inscription" on public.liste_attente;
+create or replace function public.rejoindre_liste(e text, parrain text default null) returns void
+language plpgsql security definer set search_path = public as $$
+declare em text := lower(trim(coalesce(e, '')));
+begin
+  if em !~ '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$' or length(em) > 200 then raise exception 'PUMPR_EMAIL'; end if;
+  if (select count(*) from public.liste_attente where cree_le > now() - interval '10 minutes') >= 60 then raise exception 'PUMPR_TROP'; end if;
+  insert into public.liste_attente (email, code_parrain, parraine_par)
+  values (em, substr(md5(random()::text || clock_timestamp()::text || em), 1, 8), left(parrain, 12))
+  on conflict (email) do nothing;
+end $$;
+revoke execute on function public.rejoindre_liste(text, text) from public;
+grant execute on function public.rejoindre_liste(text, text) to anon, authenticated;
+revoke execute on function public.nb_inscrits() from public;
+grant execute on function public.nb_inscrits() to anon, authenticated;

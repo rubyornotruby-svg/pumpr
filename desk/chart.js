@@ -3,7 +3,7 @@
    Les trades du journal sont dessinés sur le graphique. Couleurs réglables dans Réglages → Graphique. */
 (() => {
   "use strict";
-  const LIB = "https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js";
+  const LIB = "../assets/vendor/lightweight-charts-4.1.3.js"; /* copie locale (licence Apache 2.0, en-tête conservé) */
   const REST = "https://data-api.binance.vision/api/v3/klines";
   const WS = "wss://data-stream.binance.vision/ws/";
   const CKEY = "pumpr-chart-v1", JKEY = "jarvis-trading-journal-v1", DKEY = "pumpr-draw-v1";

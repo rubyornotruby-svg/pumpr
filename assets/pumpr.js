@@ -44,6 +44,9 @@
     if (/Password should be|weak/i.test(m)) return "Mot de passe trop faible : 8 caractères minimum.";
     if (/rate limit/i.test(m)) return "Trop de tentatives. Réessaie dans quelques minutes.";
     if (/Failed to fetch|NetworkError/i.test(m)) return "Pas de connexion au serveur. Vérifie ton Internet.";
+    if (/PUMPR_PAS_ACHAT|Database error saving new user/i.test(m)) return "Aucun achat trouvé pour cet e-mail. Utilise l'adresse avec laquelle tu as acheté Pumpr.";
+    if (/PUMPR_TROP/i.test(m)) return "Trop de demandes en peu de temps. Réessaie dans quelques minutes.";
+    if (/PUMPR_EMAIL/i.test(m)) return "Adresse e-mail invalide.";
     return m || "Une erreur est survenue.";
   };
 
@@ -82,8 +85,8 @@
       await api.ready(); email = norm(email);
       if (!okEmail(email)) return { ok: false, error: "Adresse e-mail invalide." };
       if (!pw || pw.length < 8) return { ok: false, error: "Mot de passe trop court : 8 caractères minimum." };
-      const bought = await api.emailHasPurchase(email);
-      if (!bought) return { ok: false, error: "Aucun achat trouvé pour cet e-mail. Utilise l'adresse avec laquelle tu as acheté Pumpr." };
+      /* démo : vérification ici · live : c'est le serveur qui refuse (règle 8c du fichier SQL) */
+      if (!LIVE && !(await api.emailHasPurchase(email))) return { ok: false, error: "Aucun achat trouvé pour cet e-mail. Utilise l'adresse avec laquelle tu as acheté Pumpr." };
       if (!LIVE) {
         const d = db();
         if (d.users.some(u => u.email === email)) return { ok: false, error: "Un compte existe déjà avec cet e-mail : connecte-toi." };
@@ -143,7 +146,7 @@
         const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw || ""), "PBKDF2", false, ["deriveBits"]);
         const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode("pumpr-admin-demo-v1"), iterations: 250000 }, key, 256);
         const hex = Array.from(new Uint8Array(bits)).map(x => x.toString(16).padStart(2, "0")).join("");
-        const ok = hex === "d232e1e605b7c975f1f9d0edf0103f2ba99099938a4111561f0079d59c99b240";
+        const ok = hex === "d9d78f8805f06b69b8b6ff1c7f2e4b7780e8b0a673b1dc02f618e7c00646cb59";
         if (ok) ls.set("pumpr-demo-admin", true);
         return ok;
       } catch (e) { return false; }
@@ -172,9 +175,13 @@
         const d = db(), cur = d.profiles[s.email] || { email: s.email, cree_le: now };
         d.profiles[s.email] = Object.assign(cur, p, { email: s.email, derniere_connexion: now }); save(d); return { ok: true };
       }
-      const row = Object.assign({ user_id: s.id, email: s.email, derniere_connexion: now }, p);
-      const { error } = await sb.from("profils").upsert(row, { onConflict: "user_id" });
-      return error ? { ok: false, error: FR(error.message) } : { ok: true };
+      /* seuls ces champs sont modifiables (règle 8d du fichier SQL) */
+      const upd = { derniere_connexion: now }; ["nom", "config", "configure"].forEach(k => { if (k in p) upd[k] = p[k]; });
+      const r1 = await sb.from("profils").update(upd).eq("user_id", s.id).select("user_id");
+      if (r1.error) return { ok: false, error: FR(r1.error.message) };
+      if (r1.data && r1.data.length) return { ok: true };
+      const r2 = await sb.from("profils").insert(Object.assign({ user_id: s.id, email: s.email }, upd));
+      return r2.error ? { ok: false, error: FR(r2.error.message) } : { ok: true };
     },
 
     async touch() {

@@ -31,9 +31,14 @@ Tant que `config.js` est vide, tout est simulé dans le navigateur (localStorage
 2. SQL Editor → coller `supabase/schema.sql`, remplacer `ADMIN_EMAIL` par l'e-mail admin, puis Run.
 3. Authentication → URL Configuration : mettre l'adresse du site dans « Site URL » et ajouter `…/desk/` dans « Redirect URLs ».
 4. Project Settings → API : copier « Project URL » et la clé « anon public » dans `config.js`.
-5. Créer le compte admin depuis `desk/` (onglet « Créer mon compte ») avec l'e-mail admin.
+5. Créer le compte admin depuis `desk/` (onglet « Créer mon compte ») avec l'e-mail admin, **tout de suite après l'étape 2**, puis cliquer le lien de confirmation reçu par e-mail.
+6. Authentication → Providers → Email : laisser **« Confirm email » activé** (réglage par défaut).
+7. Recommandé : Authentication → Attack Protection → activer le captcha (Cloudflare Turnstile, gratuit), et activer la protection contre les mots de passe divulgués.
 
 La sécurité repose sur les règles RLS de `schema.sql` : un utilisateur ne lit que son accès et son profil, seuls les admins voient et modifient la liste des acheteurs.
+Le bloc 8 (« sécurité renforcée ») ajoute : admin reconnu seulement si son e-mail est confirmé, création de compte refusée par le serveur sans achat, profil limité aux réglages, tailles maximales, anti-spam sur la rétractation et la liste d'attente. Le fichier peut être relancé sans risque.
+
+**Ne jamais** mettre la clé `service_role` dans `config.js` ni dans le code : seule la clé « anon public » va dans le site.
 
 **Limite connue :** le code du desk est public sur GitHub Pages. La connexion protège les comptes et les données, pas le code lui-même. Étape suivante prévue : servir le desk depuis un stockage privé après connexion.
 
