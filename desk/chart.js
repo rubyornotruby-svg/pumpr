@@ -38,7 +38,11 @@
   ];
   const DCOL = ["#c6ff3d", "#ff4fd8", "#45d9f0", "#ffc94d", "#eef1f8"];
   const FIB = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
-  const TOOLBAR = `<div class="pc-tools" role="toolbar" aria-label="Outils de dessin">${DTOOLS.map(([k, t, i]) => `<button type="button" data-tool="${k}" title="${t}" aria-label="${t}" aria-pressed="${k === "cur"}">${i}</button>`).join("")}<span class="pc-tsep"></span><button type="button" class="pc-tcol" title="Couleur du dessin" aria-label="Couleur du dessin"><i></i></button><button type="button" class="pc-tclr" title="Tout effacer" aria-label="Tout effacer">${IC('<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>')}</button></div>`;
+  const DLAB = { cur: "Aucun outil", h: "Ligne horizontale", trend: "Ligne de tendance", rect: "Rectangle (zone)", fib: "Retracement de Fibonacci", text: "Texte", erase: "Gomme" };
+  const DRAWMENU = `<div class="pc-ind pc-drw"><button type="button" class="pc-btn pc-drwb" aria-expanded="false"><span class="pc-drwi">${IC('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>')}</span>Dessin <em></em></button>
+          <div class="pc-menu pc-dmenu" hidden><div class="pc-g">Outils</div>${DTOOLS.filter(t => t[0] !== "cur").map(([k, t, i]) => `<button type="button" class="pc-di" data-tool="${k}" aria-pressed="false"><span class="pc-dico">${i}</span>${DLAB[k]}<small>${k === "erase" ? "clique sur un dessin" : k === "text" ? "une note" : k === "h" ? "support, stop…" : k === "rect" ? "zone" : k === "fib" ? "0 → 1" : "2 points"}</small></button>`).join("")}
+          <div class="pc-g">Couleur</div><div class="pc-dcols">${DCOL.map((c, i) => `<button type="button" data-col="${i}" style="--c:${c}" aria-label="Couleur ${i + 1}" aria-pressed="${i === 0}"></button>`).join("")}</div>
+          <div class="pc-g">Mes dessins</div><button type="button" class="pc-di pc-tclr"><span class="pc-dico">${IC('<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>')}</span><span class="pc-clrl">Tout effacer</span><small class="pc-dn"></small></button></div></div>`;
 
   /* ---------- indicateurs ---------- */
   const sma = (d, n) => d.map((x, i) => i < n - 1 ? null : { time: x.time, value: d.slice(i - n + 1, i + 1).reduce((s, y) => s + y.close, 0) / n }).filter(Boolean);
@@ -81,9 +85,10 @@
         <div class="pc-seg" data-g="st" role="group" aria-label="Style"><button type="button" data-v="c" aria-pressed="${c.style === "c"}">Bougies</button><button type="button" data-v="l" aria-pressed="${c.style === "l"}">Courbe</button></div>
         <div class="pc-ind"><button type="button" class="pc-btn pc-indb" aria-expanded="false">Indicateurs <em></em></button>
           <div class="pc-menu" hidden>${IND.map(x => x[0] === "g" ? `<div class="pc-g">${x[1]}</div>` : `<label><input type="checkbox" data-ind="${x[0]}" ${c.ind[x[0]] ? "checked" : ""}><i style="background:${x[2]}"></i>${x[1]}<small>${x[3]}</small></label>`).join("")}</div></div>
+        ${DRAWMENU}
         <button type="button" class="pc-btn pc-mk" aria-pressed="${c.trades}">Mes trades</button>
       </div>
-      <div class="pc-area"><div class="pc-legend"></div><div class="pc-chart"></div><canvas class="pc-draw"></canvas>${TOOLBAR}<div class="pc-msg">Chargement du graphique…</div></div>
+      <div class="pc-area"><div class="pc-legend"></div><div class="pc-chart"></div><canvas class="pc-draw"></canvas><div class="pc-dchip" hidden><span class="pc-dchipl"></span><button type="button" class="pc-dstop">Annuler</button></div><div class="pc-msg">Chargement du graphique…</div></div>
       <div class="pc-foot">Cours Binance en direct · <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts™</a></div>
     </div>`;
     const q = s => box.querySelector(s);
@@ -195,7 +200,7 @@
     const dcv = q(".pc-draw"), dx = dcv.getContext("2d"), areaEl = q(".pc-area");
     const allD = () => ls.get(DKEY, {}) || {};
     let shapes = (allD()[me.sym] || []).slice(), tool = "cur", sel = -1, draft = null, drag = null, colI = 0, dirty = true;
-    const saveD = () => { const a = allD(); a[me.sym] = shapes; ls.set(DKEY, a); dirty = true; };
+    const saveD = () => { const a = allD(); a[me.sym] = shapes; ls.set(DKEY, a); dirty = true; if (me.countD) me.countD(); };
     const step = () => stepOf(cfg().tf);
     const ser = () => cfg().style === "c" ? candles : area;
     const xOf = t => { const d = me.data; if (!d.length) return null; const lg = (t - d[0].time) / step(); return chart.timeScale().logicalToCoordinate(lg); };
@@ -203,9 +208,17 @@
     const yOf = p => ser().priceToCoordinate(p);
     const pOf = y => ser().coordinateToPrice(y);
     const pt = e => { const r = areaEl.getBoundingClientRect(); const x = e.clientX - r.left, y = e.clientY - r.top; return { x, y, t: tOf(x), p: pOf(y) }; };
-    const setTool = k => { tool = k; draft = null; areaEl.classList.toggle("drawing", k !== "cur"); areaEl.dataset.tool = k; q(".pc-tools").querySelectorAll("[data-tool]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tool === k))); dirty = true; };
+    const HINT = { h: "Touche le graphique pour placer la ligne", trend: "Glisse d'un point à l'autre", rect: "Glisse pour tracer la zone", fib: "Glisse du plus haut au plus bas", text: "Touche l'endroit de ta note", erase: "Touche un dessin pour l'effacer" };
+    const tr = x => (window.PumprLang ? window.PumprLang.t(x) : x);
+    const setTool = k => {
+      tool = k; draft = null; areaEl.classList.toggle("drawing", k !== "cur"); areaEl.dataset.tool = k;
+      q(".pc-dmenu").querySelectorAll("[data-tool]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tool === k)));
+      const btn = q(".pc-drwb"); btn.classList.toggle("on", k !== "cur");
+      const chip = q(".pc-dchip"); chip.hidden = k === "cur"; if (k !== "cur") { const l = q(".pc-dchipl"); l.innerHTML = ""; const n = document.createElement("b"); n.textContent = tr(DLAB[k]) + " · "; const h = document.createElement("span"); h.textContent = tr(HINT[k]); l.append(n, h); }
+    };
     const col = () => DCOL[colI % DCOL.length];
-    q(".pc-tcol i").style.background = col();
+    const count = () => { const n = shapes.length; q(".pc-drwb em").textContent = n || ""; q(".pc-dn").textContent = n ? n + " " + (n > 1 ? "dessins" : "dessin") : "aucun"; };
+    const closeDM = () => { const m = q(".pc-dmenu"); m.hidden = true; q(".pc-drwb").setAttribute("aria-expanded", "false"); };
     const width = () => areaEl.clientWidth - (chart.priceScale("right").width() || 0);
     const near = (px, py, ax, ay, bx, by) => { const l2 = (bx - ax) ** 2 + (by - ay) ** 2; let k = l2 ? ((px - ax) * (bx - ax) + (py - ay) * (by - ay)) / l2 : 0; k = Math.max(0, Math.min(1, k)); return Math.hypot(px - (ax + k * (bx - ax)), py - (ay + k * (by - ay))); };
     function geo(s) {
@@ -274,14 +287,14 @@
     dcv.addEventListener("pointerup", e => { if (!draft) return; const p = pt(e); if (Math.hypot(p.x - draft.x0, p.y - draft.y0) < 6) return; /* clic simple : on attend le 2e point */ const d = draft; draft = null; delete d.x0; delete d.y0; commit(d); });
     /* sélection et déplacement (mode curseur) : interception avant le graphique */
     areaEl.addEventListener("pointerdown", e => {
-      if (tool !== "cur" || e.target.closest(".pc-tools,.pc-tin")) return; const p = pt(e); const i = hit(p.x, p.y);
+      if (tool !== "cur" || e.target.closest(".pc-dchip,.pc-tin")) return; const p = pt(e); const i = hit(p.x, p.y);
       sel = i; if (i < 0) return;
       e.stopPropagation(); e.preventDefault();
       const s = shapes[i]; drag = { i, p0: p, a: Object.assign({}, s.a), b: s.b ? Object.assign({}, s.b) : null, id: e.pointerId };
       try { areaEl.setPointerCapture(e.pointerId); } catch (x) {}
     }, true);
     areaEl.addEventListener("pointermove", e => {
-      if (tool !== "cur" || e.target.closest(".pc-tools")) return; const p = pt(e);
+      if (tool !== "cur" || e.target.closest(".pc-dchip")) return; const p = pt(e);
       if (!drag) { areaEl.classList.toggle("over", hit(p.x, p.y) >= 0); return; }
       e.stopPropagation(); if (p.t == null || p.p == null || drag.p0.t == null) return;
       const dt = p.t - drag.p0.t, dp = p.p - drag.p0.p, s = shapes[drag.i];
@@ -289,16 +302,19 @@
     }, true);
     const endDrag = () => { if (drag) { drag = null; saveD(); } };
     areaEl.addEventListener("pointerup", endDrag, true); areaEl.addEventListener("pointercancel", endDrag, true);
-    q(".pc-tools").addEventListener("click", e => {
-      const b = e.target.closest("button"); if (!b) return;
-      if (b.dataset.tool) return setTool(tool === b.dataset.tool && b.dataset.tool !== "cur" ? "cur" : b.dataset.tool);
-      if (b.classList.contains("pc-tcol")) { colI++; q(".pc-tcol i").style.background = col(); if (sel >= 0 && shapes[sel]) { shapes[sel].c = col(); saveD(); } return; }
-      if (b.classList.contains("pc-tclr")) { if (!shapes.length) return; if (b.dataset.sure) { shapes = []; sel = -1; saveD(); delete b.dataset.sure; b.classList.remove("sure"); } else { b.dataset.sure = 1; b.classList.add("sure"); setTimeout(() => { delete b.dataset.sure; b.classList.remove("sure"); }, 2500); } }
+    me.countD = count; count();
+    q(".pc-drwb").addEventListener("click", e => { e.stopPropagation(); const m = q(".pc-dmenu"); m.hidden = !m.hidden; q(".pc-drwb").setAttribute("aria-expanded", String(!m.hidden)); const im = q(".pc-menu:not(.pc-dmenu)"); if (im) im.hidden = true; });
+    q(".pc-dmenu").addEventListener("click", e => {
+      e.stopPropagation(); const b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.tool) { setTool(tool === b.dataset.tool ? "cur" : b.dataset.tool); closeDM(); return; }
+      if (b.dataset.col != null) { colI = +b.dataset.col; q(".pc-dcols").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); if (sel >= 0 && shapes[sel]) { shapes[sel].c = col(); saveD(); } return; }
+      if (b.classList.contains("pc-tclr")) { if (!shapes.length) return; if (b.dataset.sure) { shapes = []; sel = -1; saveD(); delete b.dataset.sure; b.classList.remove("sure"); q(".pc-clrl").textContent = tr("Tout effacer"); closeDM(); } else { b.dataset.sure = 1; b.classList.add("sure"); q(".pc-clrl").textContent = tr("Confirmer ?"); setTimeout(() => { if (!b.dataset.sure) return; delete b.dataset.sure; b.classList.remove("sure"); q(".pc-clrl").textContent = tr("Tout effacer"); }, 3000); } }
     });
+    q(".pc-dstop").addEventListener("click", e => { e.stopPropagation(); setTool("cur"); });
     me.onKey = e => {
       if (st !== me || /INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || "")) return;
       if ((e.key === "Delete" || e.key === "Backspace") && sel >= 0) { shapes.splice(sel, 1); sel = -1; saveD(); e.preventDefault(); }
-      else if (e.key === "Escape" && (tool !== "cur" || draft)) { setTool("cur"); }
+      else if (e.key === "Escape" && (tool !== "cur" || draft)) { setTool("cur"); closeDM(); }
     };
     document.addEventListener("keydown", me.onKey);
 
@@ -308,10 +324,10 @@
       const g = b.closest("[data-g]");
       if (g) { g.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); if (g.dataset.g === "tf") { save({ tf: b.dataset.v }); load(); } else { save({ style: b.dataset.v }); applyStyle(); } return; }
       if (b.classList.contains("pc-mk")) { const on = b.getAttribute("aria-pressed") !== "true"; b.setAttribute("aria-pressed", String(on)); save({ trades: on }); markers(); return; }
-      if (b.classList.contains("pc-indb")) { e.stopPropagation(); const m = q(".pc-menu"); m.hidden = !m.hidden; b.setAttribute("aria-expanded", String(!m.hidden)); }
+      if (b.classList.contains("pc-indb")) { e.stopPropagation(); const m = q(".pc-menu:not(.pc-dmenu)"); m.hidden = !m.hidden; b.setAttribute("aria-expanded", String(!m.hidden)); q(".pc-dmenu").hidden = true; }
     });
-    q(".pc-menu").addEventListener("change", e => { const k = e.target.dataset.ind; if (!k) return; const ind = Object.assign({}, cfg().ind, { [k]: e.target.checked }); save({ ind }); applyInd(); });
-    document.addEventListener("click", e => { if (st !== me) return; const m = q(".pc-menu"); if (m && !m.hidden && !e.target.closest(".pc-ind")) { m.hidden = true; q(".pc-indb").setAttribute("aria-expanded", "false"); } });
+    q(".pc-menu:not(.pc-dmenu)").addEventListener("change", e => { const k = e.target.dataset.ind; if (!k) return; const ind = Object.assign({}, cfg().ind, { [k]: e.target.checked }); save({ ind }); applyInd(); });
+    document.addEventListener("pointerdown", e => { if (st !== me || e.target.closest(".pc-ind")) return; box.querySelectorAll(".pc-menu").forEach(m => { m.hidden = true; }); box.querySelectorAll(".pc-indb,.pc-drwb").forEach(b => b.setAttribute("aria-expanded", "false")); }, true);
     load();
   }
 

@@ -13,7 +13,7 @@ const EN = {
 "Espace admin": "Admin area", "Site Pumpr": "Pumpr website", "Se déconnecter": "Sign out", "Administrateur": "Admin",
 "DONNÉES DE DÉMO": "DEMO DATA", "Sections du desk": "Desk sections", "Journal": "Journal", "Risque": "Risk", "Marchés": "Markets", "Menu": "Menu",
 "Fermer le menu": "Close menu", "Ouvrir en grand écran": "Open full screen", "Fermer le grand écran": "Close full screen", "Actions": "Stocks",
-"Importer un CSV": "Import a CSV", "Outils de dessin": "Drawing tools", "Curseur · sélectionner et déplacer": "Cursor · select and move", "Ligne horizontale": "Horizontal line", "Ligne de tendance": "Trend line", "Rectangle (zone)": "Rectangle (zone)", "Retracement de Fibonacci": "Fibonacci retracement", "Texte": "Text", "Gomme · clique sur un dessin pour l'effacer": "Eraser · click a drawing to delete it", "Couleur du dessin": "Drawing color", "Tout effacer": "Clear all", "Ta note…": "Your note…", "Raccourcis": "Shortcuts", "Point du jour": "Daily brief", "Langue · Language": "Language · Langue",
+"Importer un CSV": "Import a CSV", "Outils de dessin": "Drawing tools", "Dessin": "Draw", "Outils": "Tools", "Couleur": "Color", "Mes dessins": "My drawings", "Aucun outil": "No tool", "Gomme": "Eraser", "Confirmer ?": "Confirm?", "aucun": "none", "clique sur un dessin": "click a drawing", "une note": "a note", "support, stop…": "support, stop…", "zone": "zone", "2 points": "2 points", "Touche le graphique pour placer la ligne": "Tap the chart to place the line", "Glisse d'un point à l'autre": "Drag from one point to the other", "Glisse pour tracer la zone": "Drag to draw the zone", "Glisse du plus haut au plus bas": "Drag from the high to the low", "Touche l'endroit de ta note": "Tap where your note goes", "Touche un dessin pour l'effacer": "Tap a drawing to delete it", "Curseur · sélectionner et déplacer": "Cursor · select and move", "Ligne horizontale": "Horizontal line", "Ligne de tendance": "Trend line", "Rectangle (zone)": "Rectangle (zone)", "Retracement de Fibonacci": "Fibonacci retracement", "Texte": "Text", "Gomme · clique sur un dessin pour l'effacer": "Eraser · click a drawing to delete it", "Couleur du dessin": "Drawing color", "Tout effacer": "Clear all", "Ta note…": "Your note…", "Raccourcis": "Shortcuts", "Point du jour": "Daily brief", "Langue · Language": "Language · Langue",
 /* performances */
 "Mes performances": "My performance", "Calculées à partir de ton journal": "Calculated from your journal",
 "Trades clôturés": "Closed trades", "Taux de réussite": "Win rate", "R moyen": "Average R",
@@ -185,7 +185,9 @@ window.PUMPR_RX.en = [
   [/^(\d+) vente\(s\) sans achat avant dans le fichier : exporte une période plus longue pour les compter\.$/, "$1 sell(s) with no earlier buy in the file: export a longer period to count them."],
   [/^Importé depuis (.+) · ouvert le (.+)$/, "Imported from $1 · opened on $2"], [/^Importé depuis (.+) · position encore ouverte$/, "Imported from $1 · position still open"],
   [/^Importer (\d+) trades?$/, "Import $1 trade(s)"],
-  [/^Afficher (.+)$/, (m, v) => "Show " + t(v)]
+  [/^Afficher (.+)$/, (m, v) => "Show " + t(v)],
+  [/^(\d+) dessins?$/, (m, n) => n + (n > 1 ? " drawings" : " drawing")],
+  [/^Couleur (\d)$/, "Color $1"]
 ];
 window.PUMPR_RX["en-GB"] = [];
 })();
