@@ -204,3 +204,21 @@ body.pc-own #m-chart .chart-box{background:#0a0c14}
 .pc-cols input{width:100%;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:transparent;padding:3px;cursor:pointer}
 
 .g-topr{display:flex;align-items:center;gap:12px}
+
+/* outils de dessin du graphique */
+.pc-draw{position:absolute;inset:0;z-index:2;pointer-events:none}
+.pc-area.drawing .pc-draw{pointer-events:auto;cursor:crosshair}
+.pc-area.drawing[data-tool="erase"] .pc-draw{cursor:not-allowed}
+.pc-area.drawing[data-tool="text"] .pc-draw{cursor:text}
+.pc-area.over .pc-chart{cursor:move}
+.pc-tools{position:absolute;left:8px;top:34px;z-index:3;display:flex;flex-direction:column;gap:3px;padding:4px;border-radius:12px;background:rgba(14,17,28,.88);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(8px)}
+.pc-tools button{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;border:0;background:transparent;color:#a3abc2;cursor:pointer;padding:0}
+.pc-tools button:hover{background:rgba(255,255,255,.06);color:#eef1f8}
+.pc-tools button[aria-pressed="true"]{background:rgba(198,255,61,.14);color:var(--acc,#c6ff3d)}
+.pc-tools svg{width:17px;height:17px}
+.pc-tsep{height:1px;margin:2px 4px;background:rgba(255,255,255,.08)}
+.pc-tcol i{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.15)}
+.pc-tclr.sure{background:rgba(255,79,216,.18)!important;color:#ff4fd8!important}
+.pc-tin{position:absolute;z-index:5;width:180px;padding:5px 8px;border-radius:8px;border:1px solid var(--acc,#c6ff3d);background:#0a0c14;color:#eef1f8;font:600 13px/1.2 var(--body,system-ui);outline:none}
+@media(max-width:700px){.pc-tools{top:28px;left:6px;flex-direction:row;flex-wrap:wrap;max-width:calc(100% - 70px)}.pc-tools button{width:28px;height:28px}.pc-tsep{width:1px;height:auto;margin:4px 2px}}
+@media(max-width:700px){body.pc-own #m-chart .chart-box{height:560px}body.pc-own #m-chart.card.focus .chart-box{height:calc(100vh - 300px)}}

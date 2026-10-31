@@ -13,7 +13,7 @@ const EN = {
 "Espace admin": "Admin area", "Site Pumpr": "Pumpr website", "Se déconnecter": "Sign out", "Administrateur": "Admin",
 "DONNÉES DE DÉMO": "DEMO DATA", "Sections du desk": "Desk sections", "Journal": "Journal", "Risque": "Risk", "Marchés": "Markets", "Menu": "Menu",
 "Fermer le menu": "Close menu", "Ouvrir en grand écran": "Open full screen", "Fermer le grand écran": "Close full screen", "Actions": "Stocks",
-"Importer un CSV": "Import a CSV", "Raccourcis": "Shortcuts", "Point du jour": "Daily brief", "Langue · Language": "Language · Langue",
+"Importer un CSV": "Import a CSV", "Outils de dessin": "Drawing tools", "Curseur · sélectionner et déplacer": "Cursor · select and move", "Ligne horizontale": "Horizontal line", "Ligne de tendance": "Trend line", "Rectangle (zone)": "Rectangle (zone)", "Retracement de Fibonacci": "Fibonacci retracement", "Texte": "Text", "Gomme · clique sur un dessin pour l'effacer": "Eraser · click a drawing to delete it", "Couleur du dessin": "Drawing color", "Tout effacer": "Clear all", "Ta note…": "Your note…", "Raccourcis": "Shortcuts", "Point du jour": "Daily brief", "Langue · Language": "Language · Langue",
 /* performances */
 "Mes performances": "My performance", "Calculées à partir de ton journal": "Calculated from your journal",
 "Trades clôturés": "Closed trades", "Taux de réussite": "Win rate", "R moyen": "Average R",
