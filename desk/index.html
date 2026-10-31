@@ -23,7 +23,9 @@
 <meta property="og:image:alt" content="Pumpr, le desk de trading en français">
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="../assets/fonts.css?v=202610301825">
+<script src="../assets/i18n.js?v=202610311016" data-langs="fr,en-US,en-GB"></script>
+<script src="i18n-desk.js?v=202610311016"></script>
+<link rel="stylesheet" href="../assets/fonts.css?v=202610311016">
 <style>
 /* Layout : fond en dégradé vivant, panneaux de verre arrondis. Colonne de travail à gauche (synthèse, graphique, journal…), la watchlist ancrée à droite. */
 :root{
@@ -298,10 +300,10 @@ body.lite{background:radial-gradient(ellipse 70% 50% at 40% -10%,rgba(69,217,240
 </style>
 
 
-<link rel="stylesheet" href="../assets/pumpr.css?v=202610301825">
-<link rel="stylesheet" href="gate.css?v=202610301825">
-<link rel="stylesheet" href="theme.css?v=202610301825">
-<link rel="stylesheet" href="mobile.css?v=202610301825">
+<link rel="stylesheet" href="../assets/pumpr.css?v=202610311016">
+<link rel="stylesheet" href="gate.css?v=202610311016">
+<link rel="stylesheet" href="theme.css?v=202610311016">
+<link rel="stylesheet" href="mobile.css?v=202610311016">
 </head>
 <body>
 <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -619,7 +621,7 @@ $$("#sAcc button").forEach(b=>b.addEventListener("click",()=>{S.accent=b.dataset
 
 /* ---------- point du jour ---------- */
 const qtxt=s=>{const q=live[s];return q?fmtPx(q.price)+" $ · "+(q.pct>=0?"+":"−")+nf(2,2).format(Math.abs(q.pct))+" %":"flux indisponible"};
-function briefText(){const s=stats();return ["Heure : "+$("#bTime").textContent,"Bitcoin : "+qtxt("BTC"),"Ethereum : "+qtxt("ETH"),"Solana : "+qtxt("SOL"),"Journal : "+s.closed.length+" trades clôturés, P&L cumulé "+money(s.tot)+", "+s.open+" en cours"].join("\n")}
+function briefText(){const s=stats(),T=x=>window.PumprLang?PumprLang.t(x):x,en=window.PumprLang&&PumprLang.lang!=="fr";return [T("Heure :")+" "+$("#bTime").textContent,T("Bitcoin :")+" "+T(qtxt("BTC")),T("Ethereum :")+" "+T(qtxt("ETH")),T("Solana :")+" "+T(qtxt("SOL")),T("Journal :")+" "+(en?s.closed.length+" closed trades, cumulative P&L "+money(s.tot)+", "+s.open+" open":s.closed.length+" trades clôturés, P&L cumulé "+money(s.tot)+", "+s.open+" en cours")].join("\n")}
 async function brief(){$("#bStatus").textContent="Récupération des données…";$("#bTime").textContent=new Intl.DateTimeFormat("fr-FR",{dateStyle:"medium",timeStyle:"short"}).format(new Date());$("#bBTC").textContent=qtxt("BTC");$("#bETH").textContent=qtxt("ETH");$("#bSOL").textContent=qtxt("SOL");$("#bText").value=briefText();$("#bStatus").textContent="Prêt."}
 $("#briefBtn").addEventListener("click",()=>{openD("dBrief");brief()});$("#bRefresh").addEventListener("click",brief);
 $("#bCopy").addEventListener("click",async()=>{const t=$("#bText");try{await navigator.clipboard.writeText(t.value);toast("Copié.")}catch(e){t.focus();t.select();toast("Texte sélectionné : Ctrl + C.")}});
@@ -632,10 +634,10 @@ applyAccent();applyLayout();greet();renderWatch();select(sel);renderAll();widget
 setInterval(greet,60000);
 };
 </script>
-<script src="../config.js?v=202610301825"></script>
-<script src="../assets/pumpr.js?v=202610301825"></script>
-<script src="csv.js?v=202610301825"></script>
-<script src="chart.js?v=202610301825"></script>
-<script src="gate.js?v=202610301825"></script>
+<script src="../config.js?v=202610311016"></script>
+<script src="../assets/pumpr.js?v=202610311016"></script>
+<script src="csv.js?v=202610311016"></script>
+<script src="chart.js?v=202610311016"></script>
+<script src="gate.js?v=202610311016"></script>
 </body>
 </html>

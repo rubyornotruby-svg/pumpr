@@ -21,8 +21,10 @@
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Pumpr : journal de trades, calcul du risque, graphiques et cours crypto en direct dans un seul desk. Paiement unique.">
-<link rel="stylesheet" href="assets/fonts.css?v=202610301825">
-<link rel="stylesheet" href="assets/pumpr.css?v=202610301825">
+<script src="assets/i18n.js?v=202610311016" data-picker="1"></script>
+<script src="assets/i18n-site.js?v=202610311016"></script>
+<link rel="stylesheet" href="assets/fonts.css?v=202610311016">
+<link rel="stylesheet" href="assets/pumpr.css?v=202610311016">
 <style>
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--pz-bg);color:var(--pz-text);font:500 16px/1.6 var(--pz-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -40,11 +42,11 @@ main,header,footer,.annonce{position:relative;z-index:1}
 .nav{position:sticky;top:0;z-index:50;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
 .nav.scrolled{background:rgba(6,7,12,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom-color:var(--pz-line)}
 .nav .wrap{display:flex;align-items:center;gap:18px;height:72px}
-.nav .links{display:flex;gap:26px;margin-left:auto}
+.nav .links{display:flex;gap:26px;margin-inline-start:auto}
 .nav .links a{text-decoration:none;color:var(--pz-muted);font:600 14px/1 var(--pz-body);transition:color .2s}
 .nav .links a:hover{color:var(--pz-text)}
-.nav .cta{display:flex;gap:10px}
-@media(max-width:900px){.nav .links{display:none}.nav .cta{margin-left:auto}}
+.nav .cta{display:flex;gap:10px;align-items:center}
+@media(max-width:900px){.nav .links{display:none}.nav .cta{margin-inline-start:auto}}
 @media(max-width:520px){.nav .cta .pz-btn:not(.pz-btn-main){display:none}}
 
 /* ticker */
@@ -189,6 +191,7 @@ footer nav a:hover{color:var(--pz-text)}
       <a href="#fonctions">Fonctions</a><a href="decouvrir.html">En images</a><a href="#config">Ton desk</a><a href="#etapes">Comment ça marche</a><a href="#prix">Prix</a><a href="#faq">FAQ</a>
     </nav>
     <div class="cta">
+      <button data-lang-btn></button>
       <a class="pz-btn pz-btn-sm" href="desk/">Accéder à mon desk</a>
       <button class="pz-btn pz-btn-main pz-btn-sm" type="button" data-buy>Acheter</button>
     </div>
@@ -351,8 +354,8 @@ footer nav a:hover{color:var(--pz-text)}
   </div>
 </div>
 
-<script src="config.js?v=202610301825"></script>
-<script src="assets/pumpr.js?v=202610301825"></script>
+<script src="config.js?v=202610311016"></script>
+<script src="assets/pumpr.js?v=202610311016"></script>
 <script>
 (()=>{
 "use strict";

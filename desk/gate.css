@@ -202,3 +202,5 @@ body.pc-own #m-chart .chart-box{background:#0a0c14}
 .pc-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
 .pc-cols label{display:grid;gap:6px;font-size:12px;color:var(--dim,#8d95ad)}
 .pc-cols input{width:100%;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:transparent;padding:3px;cursor:pointer}
+
+.g-topr{display:flex;align-items:center;gap:12px}

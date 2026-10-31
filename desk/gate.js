@@ -27,7 +27,8 @@
   document.body.classList.add("locked");
   const gate = document.createElement("div");
   gate.className = "gate pz"; gate.setAttribute("role", "main");
-  gate.innerHTML = `<div class="g-top"><a class="pz-logo" href="../"><i>P</i>Pumpr</a><a href="../">← Retour au site</a></div><div class="g-mid" id="gMid"></div>`;
+  gate.innerHTML = `<div class="g-top"><a class="pz-logo" href="../"><i>P</i>Pumpr</a><span class="g-topr"><button data-lang-btn></button><a href="../">← Retour au site</a></span></div><div class="g-mid" id="gMid"></div>`;
+  if (window.PumprLang) window.PumprLang.refresh();
   document.body.appendChild(gate);
   if (P.mode === "demo") {
     const d = document.createElement("div"); d.className = "pz-demo"; d.id = "demoBadge";
@@ -222,8 +223,10 @@
       <button type="button" role="menuitem" id="mFilm">${filming() ? "Quitter le mode tournage" : "Mode tournage (données de démo)"}</button>
       ${admin ? `<a role="menuitem" href="../admin/">Espace admin</a>` : ""}
       <a role="menuitem" href="../">Site Pumpr</a>
+      <button type="button" role="menuitem" id="mLang">Langue · Language</button>
       <button type="button" role="menuitem" class="out" id="mOut">Se déconnecter</button></div>`;
     top.appendChild(w);
+    const ml = $("#mLang"); if (ml) ml.addEventListener("click", () => { if (window.PumprLang) window.PumprLang.open(); });
     const app = document.querySelector(".app");
     if (app && !$("#dFoot")) {
       const f = document.createElement("footer"); f.id = "dFoot"; f.className = "dfoot";
@@ -319,7 +322,7 @@
     m.innerHTML = `<div class="sm-head"><span class="pz-logo"><i>P</i>Pumpr</span><button class="sm-x" type="button" aria-label="Fermer le menu">${ICON('<path d="M6 6l12 12M18 6 6 18"/>')}</button></div>
       <div class="sm-label">Ouvrir en grand écran</div>
       <div class="sm-list">${vis.map(([id, label, d]) => `<button type="button" class="sm-item" data-focus="${id}"><span class="sm-dot">${ICON(d)}</span><span>${label}</span><span class="sm-arrow" aria-hidden="true">⤢</span></button>`).join("")}</div>
-      <div class="sm-label">Actions</div>
+      <div class="sm-label">Raccourcis</div>
       <div class="sm-list">
         <button type="button" class="sm-item" data-act="add"><span class="sm-dot sm-main">${ICON('<path d="M12 5v14M5 12h14"/>')}</span><span>Ajouter un trade</span></button>
         <button type="button" class="sm-item" data-act="csv"><span class="sm-dot">${ICON('<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>')}</span><span>Importer un CSV</span></button>
@@ -327,6 +330,7 @@
         <button type="button" class="sm-item" data-act="set"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>')}</span><span>Réglages</span></button>
         <button type="button" class="sm-item" data-act="cfg"><span class="sm-dot">${ICON('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}</span><span>Modifier ma configuration</span></button>
         <button type="button" class="sm-item" data-act="film"><span class="sm-dot">${ICON('<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/>')}</span><span>${filming() ? "Quitter le mode tournage" : "Mode tournage"}</span></button>
+        <button type="button" class="sm-item" data-act="lang"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/>')}</span><span>Langue · Language</span></button>
       </div>
       <div class="sm-foot">
         <div class="sm-who"><b>${esc(name)}</b><small>${adminMode ? "Administrateur" : esc(me ? me.email : "")}</small></div>
@@ -355,6 +359,7 @@
       else if (act === "set") { const x = $("#setBtn"); if (x) x.click(); }
       else if (act === "cfg") { const x = $("#mCfg"); if (x) x.click(); }
       else if (act === "film") toggleFilming();
+      else if (act === "lang") { if (window.PumprLang) window.PumprLang.open(); }
       else if (act === "out") { if (adminMode) P.lockDemoAdmin(); else await P.signOut(); location.reload(); }
     });
     document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if ($("#sideMenu").classList.contains("open")) closeMenu(); else if (focused && !document.querySelector(".drawer.open")) closeFocus(); });
