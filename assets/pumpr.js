@@ -263,3 +263,33 @@
   };
   window.Pumpr = api;
 })();
+
+/* Bouton « œil » pour voir le mot de passe (tous les champs mot de passe, même ajoutés plus tard) */
+(() => {
+  "use strict";
+  const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const SHUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.9 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+  const T = s => (window.PumprLang ? window.PumprLang.t(s) : s);
+  function css() {
+    if (document.getElementById("pzPwCss")) return;
+    const st = document.createElement("style"); st.id = "pzPwCss";
+    st.textContent = ".pz-pw{position:relative;display:block}.pz-pw>input{width:100%;padding-inline-end:46px!important}.pz-pw-b{position:absolute;inset-inline-end:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:10px;background:transparent;color:#8f97b0;cursor:pointer;padding:0}.pz-pw-b:hover,.pz-pw-b:focus-visible{color:#eef1f8;background:rgba(255,255,255,.06);outline:none}.pz-pw-b[aria-pressed=true]{color:var(--pz-lime,#c6ff3d)}.pz-pw-b svg{width:19px;height:19px}";
+    document.head.appendChild(st);
+  }
+  function wrap(inp) {
+    if (inp.dataset.pw || inp.closest(".pz-pw")) return;
+    inp.dataset.pw = "1"; css();
+    const box = document.createElement("span"); box.className = "pz-pw";
+    inp.parentNode.insertBefore(box, inp); box.appendChild(inp);
+    const b = document.createElement("button"); b.type = "button"; b.className = "pz-pw-b"; b.tabIndex = 0;
+    const set = on => { inp.type = on ? "text" : "password"; b.setAttribute("aria-pressed", String(on)); b.innerHTML = on ? SHUT : EYE; b.setAttribute("aria-label", T(on ? "Masquer le mot de passe" : "Afficher le mot de passe")); b.title = b.getAttribute("aria-label"); };
+    b.addEventListener("mousedown", e => e.preventDefault()); /* garde le curseur dans le champ */
+    b.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); set(inp.type === "password"); inp.focus(); });
+    /* on recache le mot de passe à l'envoi du formulaire (pas d'enregistrement en clair par le navigateur) */
+    const f = inp.form; if (f && !f.dataset.pwHide) { f.dataset.pwHide = "1"; f.addEventListener("submit", () => f.querySelectorAll(".pz-pw>input").forEach(i => { i.type = "password"; }), true); }
+    set(false); box.appendChild(b);
+  }
+  const scan = root => { if (root && root.querySelectorAll) { if (root.matches && root.matches('input[type="password"]')) wrap(root); root.querySelectorAll('input[type="password"]').forEach(wrap); } };
+  const start = () => { scan(document.body); new MutationObserver(l => l.forEach(m => m.addedNodes.forEach(scan))).observe(document.body, { childList: true, subtree: true }); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
