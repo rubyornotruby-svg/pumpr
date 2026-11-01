@@ -56,7 +56,7 @@
         <button class="pz-btn pz-btn-main" type="submit" id="aGo">${tab === "in" ? "Se connecter" : "Créer mon compte"}</button>
         ${tab === "in" ? `<button class="g-link" type="button" id="aForgot">Mot de passe oublié ?</button>` : ""}
       </form>
-      <p class="pz-note" style="margin:20px 0 0">Pas encore acheté ? <a href="../" style="color:var(--pz-text)">Découvrir Pumpr</a>${P.mode === "demo" ? ` · <a href="../admin/" style="color:var(--pz-muted)">Accès administrateur</a>` : ""}</p>
+      <p class="pz-note" style="margin:20px 0 0">Pas encore acheté ? <a href="../" style="color:var(--pz-text)">Découvrir Pumpr</a> · <a href="https://tally.so/r/rD5KDR" target="_blank" rel="noopener" style="color:var(--pz-text)">Devenir testeur</a>${P.mode === "demo" ? ` · <a href="../admin/" style="color:var(--pz-muted)">Accès administrateur</a>` : ""}</p>
       ${P.mode === "demo" ? `<div class="g-help"><b>Mode démo.</b> Pour tester : ajoute un e-mail acheteur dans <a href="../admin/">l'espace admin</a>, puis crée ton compte ici avec cet e-mail.</div>` : ""}
     </div>`);
     mid.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => authView(b.dataset.tab)));

@@ -530,3 +530,16 @@ D["en-GB"] = Object.assign(D["en-GB"] || {}, {
   "Le desk de trading en français : journal, calcul du risque, graphiques et cours crypto en direct. Pas de bot, pas de signaux.": "The trading desk: journal, risk calculator, charts and live crypto prices. No bot, no signals."
 });
 })();
+
+/* bouton « testeur fondateur » (ajouté le 01/11/2026) */
+(() => {
+const D = window.PUMPR_DICT;
+const K = ["Devenir testeur","Devenir testeur fondateur","Avant le lancement :","deviens testeur fondateur","(20 places, prix fondateur à vie).","En attendant, les 20 premiers testeurs ont accès en avant-première et un prix fondateur à vie.","20 places de testeur fondateur : accès en avant-première et prix fondateur à vie."];
+const V = {
+ en: ["Become a tester","Become a founding tester","Before launch:","become a founding tester","(20 spots, lifetime founder price).","Meanwhile, the first 20 testers get early access and a lifetime founder price.","20 founding tester spots: early access and a lifetime founder price."],
+ es: ["Ser tester","Ser tester fundador","Antes del lanzamiento:","hazte tester fundador","(20 plazas, precio fundador de por vida).","Mientras tanto, los 20 primeros testers tienen acceso anticipado y un precio fundador de por vida.","20 plazas de tester fundador: acceso anticipado y precio fundador de por vida."],
+ he: ["להצטרף כבודק","להצטרף כבודק מייסד","לפני ההשקה:","הצטרף כבודק מייסד","(20 מקומות, מחיר מייסד לכל החיים).","בינתיים, 20 הבודקים הראשונים מקבלים גישה מוקדמת ומחיר מייסד לכל החיים.","20 מקומות לבודקים מייסדים: גישה מוקדמת ומחיר מייסד לכל החיים."],
+ ar: ["كن مختبِرًا","كن مختبِرًا مؤسسًا","قبل الإطلاق:","كن مختبِرًا مؤسسًا","(20 مقعدًا، سعر المؤسس مدى الحياة).","في الأثناء، يحصل أول 20 مختبِرًا على وصول مبكر وسعر المؤسس مدى الحياة.","20 مقعدًا للمختبِرين المؤسسين: وصول مبكر وسعر المؤسس مدى الحياة."]
+};
+for (const l in V) { D[l] = D[l] || {}; K.forEach((k, i) => { D[l][k] = V[l][i]; }); }
+})();
