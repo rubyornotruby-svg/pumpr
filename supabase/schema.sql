@@ -243,3 +243,30 @@ revoke execute on function public.rejoindre_liste(text, text) from public;
 grant execute on function public.rejoindre_liste(text, text) to anon, authenticated;
 revoke execute on function public.nb_inscrits() from public;
 grant execute on function public.nb_inscrits() to anon, authenticated;
+
+-- =====================================================================
+-- 9. AVIS DES FONDATEURS (jours 7, 15, 30 et bouton « Mon avis »)
+--    Peut être relancé sans risque.
+-- =====================================================================
+create table if not exists public.avis (
+  id        bigint generated always as identity primary key,
+  user_id   uuid not null references auth.users on delete cascade,
+  email     text not null,
+  type      text not null default 'avis',
+  jour      int,
+  reponses  jsonb not null default '{}'::jsonb,
+  cree_le   timestamptz not null default now()
+);
+alter table public.avis enable row level security;
+alter table public.avis drop constraint if exists avis_tailles;
+alter table public.avis add constraint avis_tailles
+  check (length(type) <= 20 and pg_column_size(reponses) < 5000);
+revoke all on public.avis from anon, authenticated;
+grant select, insert (user_id, email, type, jour, reponses) on public.avis to authenticated;
+drop policy if exists "avis_ajout" on public.avis;
+drop policy if exists "avis_lecture" on public.avis;
+create policy "avis_ajout" on public.avis for insert to authenticated
+  with check (user_id = auth.uid() and email = public.email_courant()
+    and (select count(*) from public.avis a where a.user_id = auth.uid() and a.cree_le > now() - interval '1 day') < 20);
+create policy "avis_lecture" on public.avis for select to authenticated
+  using (user_id = auth.uid() or public.est_admin());

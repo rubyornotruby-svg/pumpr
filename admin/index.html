@@ -11,8 +11,8 @@
 <link rel="icon" href="../assets/img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
 <meta name="theme-color" content="#06070c">
-<link rel="stylesheet" href="../assets/fonts.css?v=202611011212">
-<link rel="stylesheet" href="../assets/pumpr.css?v=202611011212">
+<link rel="stylesheet" href="../assets/fonts.css?v=202611041820">
+<link rel="stylesheet" href="../assets/pumpr.css?v=202611041820">
 <style>
 body{margin:0;background:var(--pz-bg);color:var(--pz-text);font:500 15px/1.55 var(--pz-body);-webkit-font-smoothing:antialiased}
 .bgx{position:fixed;inset:0;pointer-events:none;background:radial-gradient(40% 35% at 85% 0%,rgba(139,92,246,.18),transparent 70%),radial-gradient(35% 30% at 5% 0%,rgba(198,255,61,.08),transparent 70%)}
@@ -93,8 +93,8 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 </div>
 <div class="pz-toast" id="toast" role="status"></div>
 
-<script src="../config.js?v=202611011212"></script>
-<script src="../assets/pumpr.js?v=202611011212"></script>
+<script src="../config.js?v=202611041820"></script>
+<script src="../assets/pumpr.js?v=202611041820"></script>
 <script>
 (()=>{
 "use strict";
@@ -105,7 +105,7 @@ const dt=v=>v?new Intl.DateTimeFormat("fr-FR",{dateStyle:"medium",timeStyle:"sho
 const ago=v=>{if(!v)return"jamais";const m=(Date.now()-new Date(v))/60000;if(m<2)return"à l'instant";if(m<60)return Math.round(m)+" min";const h=m/60;if(h<24)return Math.round(h)+" h";return Math.round(h/24)+" j"};
 let tt;const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2600)};
 const app=$("#app");
-let access=[],profiles=[],site={},retracts=[],tab="dash",confirmDel=null;
+let access=[],profiles=[],site={},retracts=[],avis=[],tab="dash",confirmDel=null;
 
 if(P.mode==="demo"){const d=document.createElement("div");d.className="pz-demo";d.textContent="Mode démo : mot de passe provisoire. La vraie protection arrivera avec Supabase.";document.body.appendChild(d)}
 
@@ -119,7 +119,7 @@ function loginView(msg){
 }
 
 /* ---------- données ---------- */
-async function load(){[access,profiles,site,retracts]=await Promise.all([A.listAccess(),A.listProfiles(),P.site(),A.listWithdrawals()])}
+async function load(){[access,profiles,site,retracts,avis]=await Promise.all([A.listAccess(),A.listProfiles(),P.site(),A.listWithdrawals(),A.listAvis().catch(()=>[])])}
 const profOf=e=>profiles.find(p=>P.norm(p.email)===e);
 
 /* ---------- rendu ---------- */
@@ -129,13 +129,14 @@ function shell(){
     <button role="tab" data-t="access">Acheteurs et accès <small>VENTE</small></button>
     <button role="tab" data-t="site">Site de vente <small>VENTE</small></button>
     <button role="tab" data-t="users">Utilisateurs <small>DESK</small></button>
+    <button role="tab" data-t="avis">Avis <small id="aCount"></small></button>
     <button role="tab" data-t="retract">Rétractations <small id="rCount"></small></button>
   </div>
-  <section class="panel" id="p-dash"></section><section class="panel" id="p-access"></section><section class="panel" id="p-site"></section><section class="panel" id="p-users"></section><section class="panel" id="p-retract"></section>`;
+  <section class="panel" id="p-dash"></section><section class="panel" id="p-access"></section><section class="panel" id="p-site"></section><section class="panel" id="p-users"></section><section class="panel" id="p-avis"></section><section class="panel" id="p-retract"></section>`;
   $$(".tabs button").forEach(b=>b.addEventListener("click",()=>show(b.dataset.t)));
   show(tab);
 }
-function show(t){tab=t;try{history.replaceState(null,"","#"+t)}catch(e){}$$(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.t===t)));$$(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+t));({dash,access:accessP,site:siteP,users,retract})[t]()}
+function show(t){tab=t;try{history.replaceState(null,"","#"+t)}catch(e){}$$(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.t===t)));$$(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+t));({dash,access:accessP,site:siteP,users,avis:avisP,retract})[t]()}
 
 function dash(){
   const act=access.filter(a=>a.actif).length,acc=profiles.length,conf=profiles.filter(p=>p.configure).length,wk=profiles.filter(p=>p.derniere_connexion&&Date.now()-new Date(p.derniere_connexion)<7*864e5).length;
@@ -201,12 +202,23 @@ function siteP(){
     const r=await A.saveSite(v);if(!r.ok){$("#sErr").textContent=r.error;return}$("#sErr").textContent="";site=Object.assign(site,v);toast("Site de vente mis à jour.")});
 }
 
+const dayN=p=>{const f=(p.config||{}).fondateur;return f&&f.le?Math.floor((Date.now()-new Date(f.le))/864e5):null};
+const idle=p=>p.derniere_connexion?Math.floor((Date.now()-new Date(p.derniere_connexion))/864e5):null;
+const dmText=p=>`Hey ${p.nom||""}, j'ai vu que tu n'étais pas revenu sur Pumpr. Sois cash : qu'est-ce qui ne t'a pas plu ? Même une phrase m'aide énormément, et ton accès reste ouvert.`.replace("Hey ,","Hey,");
 function users(){
   const list=profiles.slice().sort((a,b)=>String(b.derniere_connexion||"").localeCompare(String(a.derniere_connexion||"")));
-  $("#p-users").innerHTML=`<div><h1>Utilisateurs du desk</h1><p class="sub">Les comptes créés et leur configuration. Le journal de trades de chaque utilisateur reste privé dans son navigateur.</p></div>
-  <div class="pz-card box"><div class="box-h"><h2>${list.length} compte${list.length>1?"s":""}</h2></div>${list.length?`<div class="tbl-wrap"><table><thead><tr><th>Utilisateur</th><th>Niveau</th><th>Marchés</th><th>Risque</th><th>Desk</th><th>Dernière connexion</th></tr></thead><tbody>${list.map(p=>{const c=p.config||{},a=access.find(x=>x.email===P.norm(p.email));return`<tr><td><div class="mail">${esc(p.nom||"—")}</div><small class="pz-note">${esc(p.email)}</small>${a&&!a.actif?' <span class="st off">Accès retiré</span>':""}</td><td>${esc(c.niveau||"—")}</td><td>${esc((c.marches||[]).join(", ")||"—")}</td><td>${c.pct?esc(String(c.pct).replace(".",","))+" %":"—"}</td><td>${p.configure?'<span class="st on">Configuré</span>':'<span class="st wait">À configurer</span>'}</td><td>${p.derniere_connexion?dt(p.derniere_connexion):"—"}</td></tr>`}).join("")}</tbody></table></div>`:`<div class="empty"><b>Aucun compte pour l'instant</b>Les acheteurs apparaîtront ici après avoir créé leur compte sur le desk.</div>`}</div>
+  const alerts=list.filter(p=>(idle(p)??0)>=5).length;
+  $("#p-users").innerHTML=`<div><h1>Utilisateurs du desk</h1><p class="sub">Les comptes créés, leur configuration et leur dernière connexion. Un fondateur inactif depuis 5 jours ou plus est signalé : envoie-lui un message perso.</p></div>
+  <div class="pz-card box"><div class="box-h"><h2>${list.length} compte${list.length>1?"s":""}${alerts?` · <span class="st wait" style="color:#ffb454">${alerts} inactif${alerts>1?"s":""}</span>`:""}</h2></div>${list.length?`<div class="tbl-wrap"><table><thead><tr><th>Utilisateur</th><th>Niveau</th><th>Marchés</th><th>Fondateur</th><th>Desk</th><th>Dernière connexion</th><th></th></tr></thead><tbody>${list.map(p=>{const c=p.config||{},a=access.find(x=>x.email===P.norm(p.email)),d=dayN(p),i=idle(p),late=i!==null&&i>=5;return`<tr><td><div class="mail">${esc(p.nom||"—")}</div><small class="pz-note">${esc(p.email)}</small>${a&&!a.actif?' <span class="st off">Accès retiré</span>':""}</td><td>${esc(c.niveau||"—")}</td><td>${esc((c.marches||[]).join(", ")||"—")}</td><td>${d===null?"—":"Jour "+d}</td><td>${p.configure?'<span class="st on">Configuré</span>':'<span class="st wait">À configurer</span>'}</td><td>${p.derniere_connexion?dt(p.derniere_connexion):"—"}${late?` <span class="st wait" style="color:#ffb454;background:rgba(255,180,84,.12)">Inactif depuis ${i} j</span>`:""}</td><td>${late?`<button class="pz-btn pz-btn-sm" data-dm="${esc(p.email)}">Copier le message</button>`:""}</td></tr>`}).join("")}</tbody></table></div>`:`<div class="empty"><b>Aucun compte pour l'instant</b>Les acheteurs apparaîtront ici après avoir créé leur compte sur le desk.</div>`}</div>
   ${P.mode==="demo"?`<div class="pz-card box"><div class="box-h"><h2>Démo</h2></div><p class="pz-note" style="margin:0 0 14px">Efface tous les comptes, accès et réglages simulés dans ce navigateur.</p><button class="pz-btn pz-btn-danger" type="button" id="reset">Réinitialiser la démo</button></div>`:""}`;
   const r=$("#reset");if(r)r.addEventListener("click",()=>{if(r.dataset.c){A.demoReset();location.reload()}else{r.dataset.c=1;r.textContent="Confirmer : tout effacer"}});
+  $$("[data-dm]").forEach(b=>b.addEventListener("click",async()=>{const p=profOf(P.norm(b.dataset.dm));try{await navigator.clipboard.writeText(dmText(p||{}));b.textContent="Copié ✓"}catch(e){b.textContent="Copie impossible"}}));
+}
+const AV_L={note:"Note",manque:"Il manque",paierais:"Paierait",utilise:"Utilise le plus",enerve:"Énerve",continuer:"Continuerait",prix:"Prix juste",type:"Type",raison:"Raison",detail:"Détail"};
+function avisP(){
+  const lbl={jour7:"Jour 7",jour15:"Jour 15",jour30:"Jour 30",accroche_pas:"N'accroche pas",libre:"Libre"};
+  $("#p-avis").innerHTML=`<div><h1>Avis des fondateurs</h1><p class="sub">Réponses aux questions des jours 7, 15 et 30, et messages « Mon avis · Je n'accroche pas ».</p></div>
+  <div class="pz-card box">${avis.length?`<div class="tbl-wrap"><table><thead><tr><th>Qui</th><th>Quand</th><th>Réponses</th></tr></thead><tbody>${avis.map(a=>`<tr><td><div class="mail">${esc(a.email)}</div></td><td>${a.type==="accroche_pas"?'<span class="st off">N\'accroche pas</span>':'<span class="st on">'+esc(lbl[a.type]||a.type)+'</span>'}<br><small class="pz-note">${dt(a.cree_le)}</small></td><td style="max-width:420px">${Object.entries(a.reponses||{}).map(([k,v])=>`<div><b>${esc(AV_L[k]||k)} :</b> ${esc(String(v))}</div>`).join("")}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty"><b>Aucun avis pour l'instant</b>Les réponses des fondateurs apparaîtront ici.</div>`}</div>`;
 }
 
 function retract(){
@@ -237,7 +249,7 @@ async function boot(){
     $("#who").textContent=s?s.email:"Mode démo";
     const out=$("#outBtn");out.hidden=false;out.onclick=async()=>{if(P.mode==="demo")P.lockDemoAdmin();else await P.signOut();location.reload()};
     await load();
-    const h=location.hash.slice(1);if(["dash","access","site","users","retract"].includes(h))tab=h;
+    const h=location.hash.slice(1);if(["dash","access","site","users","avis","retract"].includes(h))tab=h;
     shell();{const nb=retracts.filter(r=>r.statut==="nouvelle").length;const c=$("#rCount");if(c)c.textContent=nb?nb+" NOUV.":""}
   }catch(e){app.innerHTML=`<div class="login"><div class="pz-card"><h1 style="font-size:22px">Erreur</h1><p class="sub">${esc(e.message||"Chargement impossible.")}</p><button class="pz-btn pz-btn-main" type="button" onclick="location.reload()">Réessayer</button></div></div>`}
 }

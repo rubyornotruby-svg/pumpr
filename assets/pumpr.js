@@ -191,6 +191,16 @@
       await sb.from("profils").update({ derniere_connexion: now }).eq("user_id", s.id);
     },
 
+    /* avis des fondateurs (jours 7, 15, 30 et bouton « Mon avis ») */
+    async sendFeedback(a) {
+      const s = await api.session(); if (!s) return { ok: false, error: "Session expirée, reconnecte-toi." };
+      const row = { type: String(a.type || "avis").slice(0, 20), jour: Number(a.jour) || null, reponses: a.reponses || {} };
+      if (JSON.stringify(row.reponses).length > 4000) return { ok: false, error: "Réponse trop longue." };
+      if (!LIVE) { const d = db(); d.avis = d.avis || []; d.avis.push(Object.assign({ id: "a" + Date.now().toString(36), email: s.email, cree_le: new Date().toISOString() }, row)); save(d); return { ok: true }; }
+      const { error } = await sb.from("avis").insert(Object.assign({ user_id: s.id, email: s.email }, row));
+      return error ? { ok: false, error: FR(error.message) } : { ok: true };
+    },
+
     async site() {
       await api.ready();
       if (!LIVE) return Object.assign({}, DEFAULT_SITE, db().site);
@@ -263,6 +273,11 @@
       async listProfiles() {
         if (!LIVE) { const d = db(); return d.users.map(u => Object.assign({ email: u.email, cree_le: u.cree_le }, d.profiles[u.email] || {})); }
         const { data, error } = await sb.from("profils").select("*").order("derniere_connexion", { ascending: false });
+        if (error) throw new Error(FR(error.message)); return data || [];
+      },
+      async listAvis() {
+        if (!LIVE) return ((db().avis) || []).slice().reverse();
+        const { data, error } = await sb.from("avis").select("*").order("cree_le", { ascending: false }).limit(200);
         if (error) throw new Error(FR(error.message)); return data || [];
       },
       demoReset() { if (!LIVE) { ls.del(DKEY); ls.del(SKEY); } }

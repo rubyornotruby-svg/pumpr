@@ -15,6 +15,13 @@
   const ACCENTS = [["lime", "#c6ff3d", "Citron vert"], ["cyan", "#45d9f0", "Cyan"], ["violet", "#a68cff", "Violet"], ["pink", "#ff4fd8", "Rose"], ["blue", "#6f97ff", "Bleu"], ["green", "#3fe0a2", "Vert"]];
   const LEVELS = ["Débutant", "Intermédiaire", "Confirmé"];
 
+  /* Phase fondateur : accès gratuit contre quelques avis. Mettre false au lancement des ventes. */
+  const FOUNDER_PHASE = true;
+  const engagePanel = on => `<div class="wz-panel"><h1>Tu fais partie des fondateurs 🔒</h1>
+    <p class="sub" style="margin:0">Ton accès est gratuit pendant la phase de test. En échange, on te posera quelques questions courtes (1 à 2 minutes) après 7, 15 et 30 jours d'utilisation. Tes réponses décident de ce qu'on construit ensuite.</p>
+    <div class="wz-tip">Tu n'aimes pas le desk ? Dis-le-nous franchement, c'est aussi précieux. Le bouton « Mon avis · Je n'accroche pas » est dans le menu, et ton accès reste ouvert.</div>
+    <label class="wz-mod" style="cursor:pointer"><span>Je suis d'accord pour donner mon avis</span><input type="checkbox" id="wEng" ${on ? "checked" : ""}></label></div>`;
+
   let me = null, profile = null, admin = false, started = false, adminMode = false;
   /* Admin sans compte acheteur (mode démo) : sa configuration reste dans ce navigateur */
   const AKEY = "pumpr-admin-profile";
@@ -130,7 +137,8 @@
   function wizard(editing) {
     const c = currentConfig();
     let step = 0;
-    const TOTAL = 4;
+    const withEng = !editing && FOUNDER_PHASE && !adminMode;
+    const TOTAL = withEng ? 5 : 4;
     const draw = () => {
       const steps = [
         () => `<div class="wz-panel"><h1>${editing ? "Ma configuration" : "Configurons ton desk"}</h1><p class="sub" style="margin:0">${editing ? "Modifie ce que tu veux, ça s'applique tout de suite." : "Quatre questions rapides et ton desk est prêt."}</p>
@@ -146,7 +154,8 @@
         () => `<div class="wz-panel"><h1>Ton style</h1>
           <div class="pz-label">Couleur du desk<div class="wz-sw" id="wAcc">${ACCENTS.map(a => `<button type="button" style="--c:${a[1]}" data-v="${a[0]}" aria-label="${a[2]}" aria-pressed="${c.accent === a[0]}"></button>`).join("")}</div></div>
           <div class="pz-label">Modules affichés et leur ordre<div class="wz-mods" id="wMods"></div></div>
-          <label class="wz-mod" style="cursor:pointer"><span>Mode léger : site plus rapide, moins d'effets</span><input type="checkbox" id="wLite" ${c.lite ? "checked" : ""}></label></div>`
+          <label class="wz-mod" style="cursor:pointer"><span>Mode léger : site plus rapide, moins d'effets</span><input type="checkbox" id="wLite" ${c.lite ? "checked" : ""}></label></div>`,
+        () => engagePanel(c.eng)
       ];
       view(`<div class="pz-card g-card wide"><div class="wz-step">ÉTAPE ${step + 1} / ${TOTAL}</div><div class="wz-prog"><b style="width:${(step + 1) / TOTAL * 100}%"></b></div>
         ${steps[step]()}<div class="pz-err" id="wErr" role="alert" style="margin-top:12px"></div>
@@ -167,12 +176,14 @@
       if (step === 0) c.nom = $("#wNom").value.trim();
       if (step === 2) { c.cap = $("#wCap").value; c.pct = $("#wPct").value; c.stop = $("#wStop").value; }
       if (step === 3) c.lite = $("#wLite").checked;
+      if (step === 4) c.eng = $("#wEng").checked;
     };
     const check = () => {
       if (step === 0 && !c.nom) return "Entre ton prénom ou un pseudo.";
       if (step === 1 && !c.marches.length) return "Choisis au moins un marché.";
       if (step === 2) { if (!(Number(c.cap) > 0)) return "Le capital doit être supérieur à 0."; if (!(Number(c.pct) > 0 && Number(c.pct) <= 100)) return "Le risque doit être entre 0 et 100 %."; if (!(Number(c.stop) > 0)) return "Le stop doit être supérieur à 0."; }
       if (step === 3 && c.hidden.length >= MODS.length) return "Garde au moins un module affiché.";
+      if (step === 4 && !c.eng) return "Coche la case pour ouvrir ton desk.";
       return "";
     };
     function bind() {
@@ -193,7 +204,8 @@
         const btn = $("#wNext"); busy(btn, true, "Enregistrement…");
         const prevMk = ((profile && profile.config && profile.config.marches) || []).join("|");
         if (!editing || prevMk !== c.marches.join("|")) c.favs = c.marches.flatMap(g => GROUPS[g] || []);
-        const config = { niveau: c.niveau, marches: c.marches, cap: Number(c.cap), pct: Number(c.pct), stop: Number(c.stop), accent: c.accent, order: c.order, hidden: c.hidden, lite: !!c.lite, favs: c.favs };
+        const old = (profile && profile.config) || {};
+        const config = Object.assign({}, old, withEng ? { fondateur: old.fondateur || { le: new Date().toISOString() } } : {}, { niveau: c.niveau, marches: c.marches, cap: Number(c.cap), pct: Number(c.pct), stop: Number(c.stop), accent: c.accent, order: c.order, hidden: c.hidden, lite: !!c.lite, favs: c.favs });
         const r = await saveProf({ nom: c.nom, config, configure: true });
         if (!r.ok) { $("#wErr").textContent = r.error; busy(btn, false); return; }
         profile = Object.assign({}, profile || {}, { nom: c.nom, config, configure: true });
@@ -208,7 +220,7 @@
   /* ---------- desk ---------- */
   function openDesk() {
     if (!started) { started = true; window.__pumprSyncReady = true; if (typeof window.startDesk === "function") window.startDesk(); mountAccount(); }
-    gate.classList.add("gone"); document.body.classList.remove("locked"); filmBadge(); mountMobile(); mountGuide(); mountMenu();
+    gate.classList.add("gone"); document.body.classList.remove("locked"); filmBadge(); mountMobile(); mountGuide(); mountMenu(); setTimeout(mountAvis, 3000);
     const db = $("#demoBadge"); if (db) setTimeout(() => db.remove(), matchMedia("(max-width:700px)").matches ? 3500 : 6000);
     if (!adminMode) P.touch().catch(() => {});
   }
@@ -223,9 +235,11 @@
       <button type="button" role="menuitem" id="mFilm">${filming() ? "Quitter le mode tournage" : "Mode tournage (données de démo)"}</button>
       ${admin ? `<a role="menuitem" href="../admin/">Espace admin</a>` : ""}
       <a role="menuitem" href="../">Site Pumpr</a>
+      ${adminMode ? "" : `<button type="button" role="menuitem" id="mFb">Mon avis · Je n'accroche pas</button>`}
       <button type="button" role="menuitem" id="mLang">Langue · Language</button>
       <button type="button" role="menuitem" class="out" id="mOut">Se déconnecter</button></div>`;
     top.appendChild(w);
+    const mf = $("#mFb"); if (mf) mf.addEventListener("click", openFeedback);
     const ml = $("#mLang"); if (ml) ml.addEventListener("click", () => { if (window.PumprLang) window.PumprLang.open(); });
     const app = document.querySelector(".app");
     if (app && !$("#dFoot")) {
@@ -330,6 +344,7 @@
         <button type="button" class="sm-item" data-act="set"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>')}</span><span>Réglages</span></button>
         <button type="button" class="sm-item" data-act="cfg"><span class="sm-dot">${ICON('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}</span><span>Modifier ma configuration</span></button>
         <button type="button" class="sm-item" data-act="film"><span class="sm-dot">${ICON('<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/>')}</span><span>${filming() ? "Quitter le mode tournage" : "Mode tournage"}</span></button>
+        ${adminMode ? "" : `<button type="button" class="sm-item" data-act="fb"><span class="sm-dot">${ICON('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}</span><span>Mon avis · Je n'accroche pas</span></button>`}
         <button type="button" class="sm-item" data-act="lang"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/>')}</span><span>Langue · Language</span></button>
       </div>
       <div class="sm-foot">
@@ -359,6 +374,7 @@
       else if (act === "set") { const x = $("#setBtn"); if (x) x.click(); }
       else if (act === "cfg") { const x = $("#mCfg"); if (x) x.click(); }
       else if (act === "film") toggleFilming();
+      else if (act === "fb") openFeedback();
       else if (act === "lang") { if (window.PumprLang) window.PumprLang.open(); }
       else if (act === "out") { if (adminMode) P.lockDemoAdmin(); else await P.signOut(); location.reload(); }
     });
@@ -449,6 +465,112 @@
     }, 1500);
   };
 
+  /* ---------- fondateurs : engagement + avis ---------- */
+  function engageView() {
+    view(`<div class="pz-card g-card wide">${engagePanel(false)}<div class="pz-err" id="wErr" role="alert" style="margin-top:12px"></div>
+      <div class="wz-nav"><span></span><button class="pz-btn pz-btn-main" type="button" id="eOk">Ouvrir mon desk →</button></div></div>`);
+    $("#eOk").addEventListener("click", async () => {
+      if (!$("#wEng").checked) { $("#wErr").textContent = "Coche la case pour ouvrir ton desk."; return; }
+      const b = $("#eOk"); busy(b, true, "Enregistrement…");
+      const config = Object.assign({}, profile.config || {}, { fondateur: { le: new Date().toISOString() } });
+      const r = await saveProf({ config });
+      if (!r.ok) { $("#wErr").textContent = r.error; busy(b, false); return; }
+      profile = Object.assign({}, profile, { config });
+      openDesk();
+    });
+  }
+
+  const AVIS_JOURS = [7, 15, 30];
+  const AVIS_Q = {
+    7: { t: "Ta première semaine sur Pumpr", q: [
+      { k: "note", l: "Ta note sur 5", type: "chips", o: ["1", "2", "3", "4", "5"], req: true },
+      { k: "manque", l: "Qu'est-ce qui te manque le plus ?", type: "text" },
+      { k: "paierais", l: "Tu paierais pour ce desk ?", type: "chips", o: ["Oui", "Peut-être", "Non"] }] },
+    15: { t: "Deux semaines déjà", q: [
+      { k: "utilise", l: "Ce que tu utilises le plus", type: "text", req: true },
+      { k: "enerve", l: "Ce qui t'énerve ou te ralentit", type: "text" }] },
+    30: { t: "Un mois ensemble", q: [
+      { k: "continuer", l: "Tu continuerais à l'utiliser ?", type: "chips", o: ["Oui", "Peut-être", "Non"], req: true },
+      { k: "prix", l: "Quel prix par mois te paraîtrait juste ?", type: "text" }] }
+  };
+  const today = () => new Date().toLocaleDateString("sv");
+
+  /* fenêtre de questions : o = { title, intro, questions, later, closable, onSend } */
+  function avisModal(o) {
+    const ov = document.createElement("div"); ov.className = "av-ov pz";
+    ov.innerHTML = `<div class="av-box" role="dialog" aria-modal="true" aria-labelledby="avT"><h2 id="avT">${esc(o.title)}</h2>${o.intro ? `<p class="sub" style="margin:0 0 4px">${esc(o.intro)}</p>` : ""}
+      <div id="avQ">${o.questions.map(q => `<div class="pz-label" data-k="${q.k}" ${q.when ? `data-wk="${q.when[0]}" data-wv="${esc(q.when[1])}" hidden` : ""}>${esc(q.l)}${q.type === "chips"
+        ? `<div class="wz-chips">${q.o.map(v => `<button type="button" aria-pressed="false" data-v="${esc(v)}">${esc(v)}</button>`).join("")}</div>`
+        : `<textarea class="pz-field av-t" maxlength="500" rows="2"></textarea>`}</div>`).join("")}</div>
+      <div class="pz-err" id="avErr" role="alert"></div>
+      <div class="av-nav">${o.later ? `<button class="pz-btn" type="button" id="avLater">Plus tard</button>` : o.closable ? `<button class="pz-btn" type="button" id="avClose">Fermer</button>` : "<span></span>"}<button class="pz-btn pz-btn-main" type="button" id="avSend">Envoyer</button></div></div>`;
+    document.body.appendChild(ov);
+    const box = ov.querySelector(".av-box"), close = () => ov.remove();
+    const val = k => { const el = ov.querySelector(`[data-k="${k}"]`); if (!el) return ""; const b = el.querySelector('[aria-pressed="true"]'); return b ? b.dataset.v : (el.querySelector("textarea") ? el.querySelector("textarea").value.trim() : ""); };
+    const sync = () => ov.querySelectorAll("[data-wk]").forEach(el => { el.hidden = val(el.dataset.wk) !== el.dataset.wv; });
+    ov.addEventListener("click", e => {
+      const b = e.target.closest(".wz-chips button"); if (!b) return;
+      b.parentNode.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); sync();
+    });
+    const l = $("#avLater"); if (l) l.addEventListener("click", () => { close(); if (o.onLater) o.onLater(); });
+    const c = $("#avClose"); if (c) c.addEventListener("click", close);
+    if (o.closable) ov.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+    $("#avSend").addEventListener("click", async () => {
+      const ans = {};
+      for (const q of o.questions) {
+        const el = ov.querySelector(`[data-k="${q.k}"]`); if (el.hidden) continue;
+        const v = val(q.k); if (q.req && !v) { $("#avErr").textContent = "Réponds à « " + q.l + " » pour continuer."; return; }
+        if (v) ans[q.k] = v;
+      }
+      const b = $("#avSend"); busy(b, true, "Envoi…");
+      const r = await o.onSend(ans);
+      if (!r.ok) { $("#avErr").textContent = r.error || "Envoi impossible, réessaie."; busy(b, false); return; }
+      box.innerHTML = `<h2>Merci 🙏</h2><p class="sub" style="margin:0">${esc(o.thanks || "Ton avis compte vraiment.")}</p><div class="av-nav"><span></span><button class="pz-btn pz-btn-main" type="button" id="avOk">Fermer</button></div>`;
+      $("#avOk").addEventListener("click", close);
+    });
+    const f = ov.querySelector("button[aria-pressed],textarea"); if (f) setTimeout(() => f.focus(), 60);
+    return ov;
+  }
+
+  /* questions des jours 7, 15, 30 (une fenêtre au centre, un seul « Plus tard » par palier) */
+  function mountAvis() {
+    if (!FOUNDER_PHASE || adminMode || filming() || !profile || document.querySelector(".av-ov")) return;
+    const cfg = profile.config || {}, f = cfg.fondateur; if (!f || !f.le) return;
+    const days = Math.floor((Date.now() - new Date(f.le)) / 864e5), av = cfg.avis || {}, done = av.done || [], later = av.later || {};
+    const m = AVIS_JOURS.filter(j => days >= j && !done.includes(j)).pop(); if (!m) return;
+    if (later[m] === today()) return;
+    const save = patch => {
+      const config = Object.assign({}, profile.config || {}, { avis: Object.assign({ done: [], later: {} }, (profile.config || {}).avis || {}, patch) });
+      profile = Object.assign({}, profile, { config }); return saveProf({ config });
+    };
+    const Q = AVIS_Q[m];
+    avisModal({
+      title: Q.t, intro: "Quelques questions rapides, environ une minute.", questions: Q.q, later: !later[m],
+      thanks: "Ton accès fondateur reste gratuit. Tes réponses guident ce qu'on construit.",
+      onLater: () => save({ later: Object.assign({}, later, { [m]: today() }) }),
+      onSend: async ans => {
+        const r = await P.sendFeedback({ type: "jour" + m, jour: m, reponses: ans });
+        if (r.ok) save({ done: AVIS_JOURS.filter(j => j <= m).concat(done).filter((x, i, a) => a.indexOf(x) === i) });
+        return r;
+      }
+    });
+  }
+
+  /* bouton du menu : « Mon avis · Je n'accroche pas » */
+  function openFeedback() {
+    if (adminMode) return;
+    avisModal({
+      title: "Dis-nous franchement", closable: true,
+      intro: "Un bug, une idée, ou tu n'accroches pas : ton retour compte autant qu'un compliment, et ton accès reste ouvert.",
+      thanks: "Merci, ton avis compte autant que les autres. Ton accès reste ouvert si tu veux revenir.",
+      questions: [
+        { k: "type", l: "C'est quoi ?", type: "chips", o: ["Je n'accroche pas", "Il me manque une fonction", "J'ai trouvé un bug", "J'ai une idée"], req: true },
+        { k: "raison", l: "Pourquoi ?", type: "chips", o: ["C'est trop compliqué", "J'utilise déjà autre chose", "Je ne trade pas en ce moment", "Il manque ce dont j'ai besoin", "Autre"], when: ["type", "Je n'accroche pas"] },
+        { k: "detail", l: "Dis-nous en plus (facultatif)", type: "text" }],
+      onSend: ans => P.sendFeedback({ type: ans.type === "Je n'accroche pas" ? "accroche_pas" : "libre", reponses: ans })
+    });
+  }
+
   /* ---------- aiguillage ---------- */
   async function route() {
     loading("Vérification de ton accès…");
@@ -465,6 +587,7 @@
       }
       if (!profile || !profile.configure) return wizard(false);
       applyLocal(Object.assign(currentConfig(), profile.config || {}, { nom: profile.nom }), false);
+      if (FOUNDER_PHASE && !adminMode && !(profile.config || {}).fondateur) return engageView();
       openDesk();
     } catch (e) {
       view(`<div class="pz-card g-card"><h1>Connexion impossible</h1><p class="sub">${esc(e.message || "Le service de connexion ne répond pas.")}</p><button class="pz-btn pz-btn-main" type="button" id="gRetry">Réessayer</button></div>`);

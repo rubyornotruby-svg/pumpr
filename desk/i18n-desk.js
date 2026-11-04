@@ -4,6 +4,24 @@ window.PUMPR_RX = window.PUMPR_RX || {};
 (() => {
 const t = s => (window.PumprLang ? window.PumprLang.t(s) : s);
 const EN = {
+"Tu fais partie des fondateurs 🔒": "You are a founder 🔒",
+"Ton accès est gratuit pendant la phase de test. En échange, on te posera quelques questions courtes (1 à 2 minutes) après 7, 15 et 30 jours d'utilisation. Tes réponses décident de ce qu'on construit ensuite.": "Your access is free during the test phase. In return, we will ask a few short questions (1 to 2 minutes) after 7, 15 and 30 days of use. Your answers decide what we build next.",
+"Tu n'aimes pas le desk ? Dis-le-nous franchement, c'est aussi précieux. Le bouton « Mon avis · Je n'accroche pas » est dans le menu, et ton accès reste ouvert.": "Don't like the desk? Tell us frankly, it is just as valuable. The \"My feedback · Not for me\" button is in the menu, and your access stays open.",
+"Je suis d'accord pour donner mon avis": "I agree to give my feedback", "Coche la case pour ouvrir ton desk.": "Tick the box to open your desk.",
+"Mon avis · Je n'accroche pas": "My feedback · Not for me", "Dis-nous franchement": "Tell us frankly",
+"Un bug, une idée, ou tu n'accroches pas : ton retour compte autant qu'un compliment, et ton accès reste ouvert.": "A bug, an idea, or it's not for you: your feedback matters as much as a compliment, and your access stays open.",
+"C'est quoi ?": "What is it?", "Je n'accroche pas": "I'm not into it", "Il me manque une fonction": "A feature is missing", "J'ai trouvé un bug": "I found a bug", "J'ai une idée": "I have an idea",
+"Pourquoi ?": "Why?", "C'est trop compliqué": "It's too complicated", "J'utilise déjà autre chose": "I already use something else", "Je ne trade pas en ce moment": "I'm not trading right now", "Il manque ce dont j'ai besoin": "It lacks what I need", "Autre": "Other",
+"Dis-nous en plus (facultatif)": "Tell us more (optional)", "Merci 🙏": "Thank you 🙏", "Plus tard": "Later", "Envoyer": "Send", "Envoi…": "Sending…",
+"Merci, ton avis compte autant que les autres. Ton accès reste ouvert si tu veux revenir.": "Thanks, your feedback counts as much as any other. Your access stays open if you want to come back.",
+"Ton accès fondateur reste gratuit. Tes réponses guident ce qu'on construit.": "Your founder access stays free. Your answers guide what we build.",
+"Quelques questions rapides, environ une minute.": "A few quick questions, about a minute.",
+"Ta première semaine sur Pumpr": "Your first week on Pumpr", "Deux semaines déjà": "Two weeks already", "Un mois ensemble": "One month together",
+"Ta note sur 5": "Your rating out of 5", "Qu'est-ce qui te manque le plus ?": "What do you miss the most?", "Tu paierais pour ce desk ?": "Would you pay for this desk?",
+"Ce que tu utilises le plus": "What you use the most", "Ce qui t'énerve ou te ralentit": "What annoys or slows you down",
+"Tu continuerais à l'utiliser ?": "Would you keep using it?", "Quel prix par mois te paraîtrait juste ?": "What monthly price would feel fair?",
+"Oui": "Yes", "Peut-être": "Maybe", "Non": "No",
+"Réponse trop longue.": "Answer too long.", "Envoi impossible, réessaie.": "Could not send, try again.",
 /* en-tête et menus */
 "Ouvrir le menu": "Open menu", "Bonjour": "Hello", "Bonsoir": "Good evening",
 "Lecture seule · aucun ordre": "Read-only · no orders", "Connexion à Binance…": "Connecting to Binance…",
