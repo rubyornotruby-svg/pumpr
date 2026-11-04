@@ -192,6 +192,13 @@
     },
 
     /* avis des fondateurs (jours 7, 15, 30 et bouton « Mon avis ») */
+    /* Aperçu fondateur de l'admin (mode démo) : l'avis est rangé dans la liste d'avis de ce navigateur, marqué « aperçu ». */
+    async sendPreviewFeedback(a) {
+      if (LIVE) return { ok: true };
+      const d = db(); d.avis = d.avis || [];
+      d.avis.push({ id: "a" + Date.now().toString(36), email: "aperçu (toi, admin)", cree_le: new Date().toISOString(), type: String(a.type || "avis").slice(0, 20), jour: Number(a.jour) || null, reponses: a.reponses || {} });
+      save(d); return { ok: true };
+    },
     async sendFeedback(a) {
       const s = await api.session(); if (!s) return { ok: false, error: "Session expirée, reconnecte-toi." };
       const row = { type: String(a.type || "avis").slice(0, 20), jour: Number(a.jour) || null, reponses: a.reponses || {} };

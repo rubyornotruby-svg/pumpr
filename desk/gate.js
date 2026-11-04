@@ -25,11 +25,11 @@
 
   let me = null, profile = null, admin = false, started = false, adminMode = false;
   /* Admin sans compte acheteur (mode démo) : sa configuration reste dans ce navigateur */
-  /* Aperçu fondateur (admin) : desk/?fondateur=1, avec &jour=7, 15 ou 30 pour voir les questions. Rien n'est envoyé. */
+  /* Aperçu fondateur (admin) : desk/?fondateur=1, avec &jour=7, 15 ou 30 pour voir les questions. L'avis apparaît dans l'onglet Avis de l'admin, marqué aperçu. */
   const PREV = /[?&]fondateur=1/.test(location.search);
   const PREV_JOUR = +((location.search.match(/[?&]jour=(\d+)/) || [])[1] || 0);
   const AKEY = PREV ? "pumpr-admin-preview" : "pumpr-admin-profile";
-  const sendFb = a => PREV ? Promise.resolve({ ok: true }) : P.sendFeedback(a);
+  const sendFb = a => PREV ? P.sendPreviewFeedback(a) : P.sendFeedback(a);
   const saveProf = async p => {
     if (adminMode) { ls.set(AKEY, Object.assign({}, ls.get(AKEY, {}) || {}, p)); return { ok: true }; }
     return P.saveProfile(p);
