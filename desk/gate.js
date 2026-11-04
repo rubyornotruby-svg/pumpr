@@ -6,7 +6,8 @@
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const ls = {
     get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+    del(k) { try { localStorage.removeItem(k); } catch (e) {} }
   };
   /* clés utilisées par le desk */
   const K = { set: "jarvis-user-settings-v1", risk: "jarvis-trading-risk-v2", fav: "jarvis-watch-favorites-v1", sel: "jarvis-trading-selected-v2" };
@@ -24,7 +25,11 @@
 
   let me = null, profile = null, admin = false, started = false, adminMode = false;
   /* Admin sans compte acheteur (mode démo) : sa configuration reste dans ce navigateur */
-  const AKEY = "pumpr-admin-profile";
+  /* Aperçu fondateur (admin) : desk/?fondateur=1, avec &jour=7, 15 ou 30 pour voir les questions. Rien n'est envoyé. */
+  const PREV = /[?&]fondateur=1/.test(location.search);
+  const PREV_JOUR = +((location.search.match(/[?&]jour=(\d+)/) || [])[1] || 0);
+  const AKEY = PREV ? "pumpr-admin-preview" : "pumpr-admin-profile";
+  const sendFb = a => PREV ? Promise.resolve({ ok: true }) : P.sendFeedback(a);
   const saveProf = async p => {
     if (adminMode) { ls.set(AKEY, Object.assign({}, ls.get(AKEY, {}) || {}, p)); return { ok: true }; }
     return P.saveProfile(p);
@@ -137,7 +142,7 @@
   function wizard(editing) {
     const c = currentConfig();
     let step = 0;
-    const withEng = !editing && FOUNDER_PHASE && !adminMode;
+    const withEng = !editing && FOUNDER_PHASE && (!adminMode || PREV);
     const TOTAL = withEng ? 5 : 4;
     const draw = () => {
       const steps = [
@@ -230,12 +235,12 @@
     const name = (profile && profile.nom) || me.email.split("@")[0];
     const w = document.createElement("div"); w.className = "acct"; w.id = "acctWrap";
     w.innerHTML = `<button class="btn acct-btn" type="button" id="acctBtn" aria-haspopup="menu" aria-expanded="false"><span class="acct-av">${esc(name.slice(0, 1).toUpperCase())}</span><span class="acct-name">${esc(name)}</span></button>
-      <div class="acct-menu" id="acctMenu" role="menu"><div class="who"><b>${esc(name)}</b><small>${adminMode ? "Connecté en administrateur" : esc(me.email)}</small></div>
+      <div class="acct-menu" id="acctMenu" role="menu"><div class="who"><b>${esc(name)}</b><small>${PREV ? "Aperçu fondateur (admin)" : adminMode ? "Connecté en administrateur" : esc(me.email)}</small></div>
       <button type="button" role="menuitem" id="mCfg">Modifier ma configuration</button>
       <button type="button" role="menuitem" id="mFilm">${filming() ? "Quitter le mode tournage" : "Mode tournage (données de démo)"}</button>
       ${admin ? `<a role="menuitem" href="../admin/">Espace admin</a>` : ""}
       <a role="menuitem" href="../">Site Pumpr</a>
-      ${adminMode ? "" : `<button type="button" role="menuitem" id="mFb">Mon avis · Je n'accroche pas</button>`}
+      ${adminMode && !PREV ? "" : `<button type="button" role="menuitem" id="mFb">Mon avis · Je n'accroche pas</button>`}
       <button type="button" role="menuitem" id="mLang">Langue · Language</button>
       <button type="button" role="menuitem" class="out" id="mOut">Se déconnecter</button></div>`;
     top.appendChild(w);
@@ -344,7 +349,7 @@
         <button type="button" class="sm-item" data-act="set"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>')}</span><span>Réglages</span></button>
         <button type="button" class="sm-item" data-act="cfg"><span class="sm-dot">${ICON('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}</span><span>Modifier ma configuration</span></button>
         <button type="button" class="sm-item" data-act="film"><span class="sm-dot">${ICON('<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/>')}</span><span>${filming() ? "Quitter le mode tournage" : "Mode tournage"}</span></button>
-        ${adminMode ? "" : `<button type="button" class="sm-item" data-act="fb"><span class="sm-dot">${ICON('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}</span><span>Mon avis · Je n'accroche pas</span></button>`}
+        ${adminMode && !PREV ? "" : `<button type="button" class="sm-item" data-act="fb"><span class="sm-dot">${ICON('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}</span><span>Mon avis · Je n'accroche pas</span></button>`}
         <button type="button" class="sm-item" data-act="lang"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/>')}</span><span>Langue · Language</span></button>
       </div>
       <div class="sm-foot">
@@ -534,7 +539,7 @@
 
   /* questions des jours 7, 15, 30 (une fenêtre au centre, un seul « Plus tard » par palier) */
   function mountAvis() {
-    if (!FOUNDER_PHASE || adminMode || filming() || !profile || document.querySelector(".av-ov")) return;
+    if (!FOUNDER_PHASE || (adminMode && !PREV) || filming() || !profile || document.querySelector(".av-ov")) return;
     const cfg = profile.config || {}, f = cfg.fondateur; if (!f || !f.le) return;
     const days = Math.floor((Date.now() - new Date(f.le)) / 864e5), av = cfg.avis || {}, done = av.done || [], later = av.later || {};
     const m = AVIS_JOURS.filter(j => days >= j && !done.includes(j)).pop(); if (!m) return;
@@ -549,7 +554,7 @@
       thanks: "Ton accès fondateur reste gratuit. Tes réponses guident ce qu'on construit.",
       onLater: () => save({ later: Object.assign({}, later, { [m]: today() }) }),
       onSend: async ans => {
-        const r = await P.sendFeedback({ type: "jour" + m, jour: m, reponses: ans });
+        const r = await sendFb({ type: "jour" + m, jour: m, reponses: ans });
         if (r.ok) save({ done: AVIS_JOURS.filter(j => j <= m).concat(done).filter((x, i, a) => a.indexOf(x) === i) });
         return r;
       }
@@ -558,7 +563,7 @@
 
   /* bouton du menu : « Mon avis · Je n'accroche pas » */
   function openFeedback() {
-    if (adminMode) return;
+    if (adminMode && !PREV) return;
     avisModal({
       title: "Dis-nous franchement", closable: true,
       intro: "Un bug, une idée, ou tu n'accroches pas : ton retour compte autant qu'un compliment, et ton accès reste ouvert.",
@@ -567,7 +572,7 @@
         { k: "type", l: "C'est quoi ?", type: "chips", o: ["Je n'accroche pas", "Il me manque une fonction", "J'ai trouvé un bug", "J'ai une idée"], req: true },
         { k: "raison", l: "Pourquoi ?", type: "chips", o: ["C'est trop compliqué", "J'utilise déjà autre chose", "Je ne trade pas en ce moment", "Il manque ce dont j'ai besoin", "Autre"], when: ["type", "Je n'accroche pas"] },
         { k: "detail", l: "Dis-nous en plus (facultatif)", type: "text" }],
-      onSend: ans => P.sendFeedback({ type: ans.type === "Je n'accroche pas" ? "accroche_pas" : "libre", reponses: ans })
+      onSend: ans => sendFb({ type: ans.type === "Je n'accroche pas" ? "accroche_pas" : "libre", reponses: ans })
     });
   }
 
@@ -580,6 +585,7 @@
       if (!me && admin && P.mode === "demo") {
         /* admin déverrouillé : accès direct au desk, sans compte acheteur */
         adminMode = true; me = { email: "admin", id: "admin" }; profile = ls.get(AKEY, null);
+        if (PREV) { if (/[?&]reset=1/.test(location.search)) { ls.del(AKEY); profile = null; } if (profile && profile.config && profile.config.fondateur && PREV_JOUR) profile.config.fondateur.le = new Date(Date.now() - PREV_JOUR * 864e5).toISOString(); }
       } else {
         if (!me) return authView("in");
         if (!admin && !(await P.access())) return noAccessView();
@@ -587,7 +593,7 @@
       }
       if (!profile || !profile.configure) return wizard(false);
       applyLocal(Object.assign(currentConfig(), profile.config || {}, { nom: profile.nom }), false);
-      if (FOUNDER_PHASE && !adminMode && !(profile.config || {}).fondateur) return engageView();
+      if (FOUNDER_PHASE && (!adminMode || PREV) && !(profile.config || {}).fondateur) return engageView();
       openDesk();
     } catch (e) {
       view(`<div class="pz-card g-card"><h1>Connexion impossible</h1><p class="sub">${esc(e.message || "Le service de connexion ne répond pas.")}</p><button class="pz-btn pz-btn-main" type="button" id="gRetry">Réessayer</button></div>`);
