@@ -146,7 +146,7 @@
         const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw || ""), "PBKDF2", false, ["deriveBits"]);
         const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode("pumpr-admin-demo-v1"), iterations: 250000 }, key, 256);
         const hex = Array.from(new Uint8Array(bits)).map(x => x.toString(16).padStart(2, "0")).join("");
-        const ok = hex === "1c88ad5ef2c2c3cf46910d7b3105173ed304f79568c1704666a4047c738d2aa6";
+        const ok = hex === "a71e010d7bf0936b7423d4f2a510d7e82bbd9faa8c7eaebb17c8b02332dee958";
         if (ok) ls.set("pumpr-demo-admin", true);
         return ok;
       } catch (e) { return false; }
