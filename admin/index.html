@@ -11,8 +11,8 @@
 <link rel="icon" href="../assets/img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
 <meta name="theme-color" content="#06070c">
-<link rel="stylesheet" href="../assets/fonts.css?v=202611041839">
-<link rel="stylesheet" href="../assets/pumpr.css?v=202611041839">
+<link rel="stylesheet" href="../assets/fonts.css?v=202611041842">
+<link rel="stylesheet" href="../assets/pumpr.css?v=202611041842">
 <style>
 body{margin:0;background:var(--pz-bg);color:var(--pz-text);font:500 15px/1.55 var(--pz-body);-webkit-font-smoothing:antialiased}
 .bgx{position:fixed;inset:0;pointer-events:none;background:radial-gradient(40% 35% at 85% 0%,rgba(139,92,246,.18),transparent 70%),radial-gradient(35% 30% at 5% 0%,rgba(198,255,61,.08),transparent 70%)}
@@ -93,8 +93,8 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 </div>
 <div class="pz-toast" id="toast" role="status"></div>
 
-<script src="../config.js?v=202611041839"></script>
-<script src="../assets/pumpr.js?v=202611041839"></script>
+<script src="../config.js?v=202611041842"></script>
+<script src="../assets/pumpr.js?v=202611041842"></script>
 <script>
 (()=>{
 "use strict";
@@ -235,7 +235,7 @@ function demoLock(msg){
   <form class="form" id="df" novalidate><label class="pz-label">Mot de passe<input class="pz-field" id="dp" type="password" autocomplete="current-password"></label>
   <div class="pz-err" id="de" role="alert">${esc(msg||"")}</div><button class="pz-btn pz-btn-main" type="submit" id="dg">Entrer</button></form></div></div>`;
   setTimeout(()=>$("#dp").focus(),50);
-  $("#df").addEventListener("submit",async e=>{e.preventDefault();const b=$("#dg");b.disabled=true;b.textContent="Vérification…";const ok=await P.unlockDemoAdmin($("#dp").value);if(ok)return boot();b.disabled=false;b.textContent="Entrer";$("#de").textContent="Mot de passe incorrect.";$("#dp").select()});
+  $("#df").addEventListener("submit",async e=>{e.preventDefault();const b=$("#dg");b.disabled=true;b.textContent="Vérification…";const ok=await P.unlockDemoAdmin($("#dp").value.trim());if(ok)return boot();b.disabled=false;b.textContent="Entrer";$("#de").textContent="Mot de passe incorrect. (version "+(document.querySelector("script[src*=\"pumpr.js\"]").src.split("v=")[1]||"?")+", "+$("#dp").value.trim().length+" caractères)";$("#dp").select()});
 }
 
 async function boot(){
