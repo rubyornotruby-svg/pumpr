@@ -1,0 +1,8 @@
+.git
+.gitignore
+.assetsignore
+wrangler.jsonc
+README.md
+bump-version.sh
+supabase
+node_modules
