@@ -10,6 +10,6 @@
     "run_worker_first": ["/desk", "/desk/*", "/api/*"]
   },
   "kv_namespaces": [
-    { "binding": "CODES" }
+    { "binding": "CODES", "id": "002c3e144c7b4955af1cd53a30718012" }
   ]
 }
