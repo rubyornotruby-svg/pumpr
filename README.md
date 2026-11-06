@@ -1,47 +1,31 @@
 # Pumpr
 
-Desk de trading personnel vendu en paiement unique : journal de trades, calcul du risque, graphiques TradingView et cours crypto Binance en direct. Lecture seule : aucun courtier, aucun ordre.
+Desk de trading personnel : journal de trades, calcul du risque, graphiques TradingView et cours crypto Binance en direct. Lecture seule : aucun courtier, aucun ordre.
+
+Phase actuelle : **test gratuit réservé aux fondateurs** (20 places, inscription par formulaire Tally, avis à 7, 15 et 30 jours).
 
 ## Structure
 
 | Chemin | Rôle |
 |---|---|
-| `index.html` | Site de vente |
-| `desk/` | Le desk : connexion, configuration « mon desk », puis le desk |
-| `admin/` | Espace admin : acheteurs et accès, réglages du site de vente, utilisateurs du desk |
-| `mentions-legales.html` | Modèle de mentions légales et CGV, à compléter |
-| `config.js` | Clés Supabase (vides = mode démo) |
-| `assets/pumpr.js` | Comptes, accès et réglages, partagés par les trois pages |
-| `supabase/schema.sql` | Base de données et règles de sécurité |
+| `index.html` | Site de présentation |
+| `desk/` | Le desk : configuration « mon desk », engagement fondateur, puis le desk |
+| `decouvrir.html` | Le desk en images |
+| `mentions-legales.html` | Mentions légales, CGV (applicables à l'ouverture des ventes) et confidentialité, à compléter |
+| `retractation.html` | Page de rétractation, en attente de l'ouverture des ventes |
+| `assets/` | Styles, polices, traductions |
+| `wrangler.jsonc`, `.assetsignore` | Déploiement sur Cloudflare |
 
-## Parcours client
+## Fonctionnement
 
-1. Achat sur le site de vente (lien d'achat réglé dans l'admin).
-2. L'e-mail de l'acheteur est ajouté à la liste des accès (à la main dans l'admin pour l'instant, automatiquement plus tard via le prestataire de paiement).
-3. L'acheteur ouvre `desk/` et crée son compte avec ce même e-mail. Un e-mail sans achat est refusé.
-4. À la première connexion, il configure son desk : pseudo, niveau, marchés, risque, couleur, modules.
+- Le journal et les réglages du desk restent dans le navigateur de l'utilisateur.
+- Aucun compte n'est géré par Pumpr. La connexion par e-mail et code sera assurée par Cloudflare Access (liste des e-mails fondateurs réglée dans Cloudflare).
+- Les avis passent par un formulaire Tally (`FEEDBACK_URL` dans `desk/gate.js`).
 
-## Mode démo
+## Mettre en ligne
 
-Tant que `config.js` est vide, tout est simulé dans le navigateur (localStorage). Pratique pour tester, mais **pas sécurisé** : n'importe qui peut ouvrir l'admin. Ne pas ouvrir les ventes dans ce mode.
+Chaque publication sur la branche `main` redéploie le site automatiquement via Cloudflare. Après un changement de CSS ou de JS, lancer `./bump-version.sh` pour forcer les navigateurs à recharger.
 
-## Brancher Supabase (comptes sécurisés)
+## Au lancement des ventes (plus tard)
 
-1. Créer un projet sur supabase.com (par un adulte, titulaire du projet).
-2. SQL Editor → coller `supabase/schema.sql`, remplacer `ADMIN_EMAIL` par l'e-mail admin, puis Run.
-3. Authentication → URL Configuration : mettre l'adresse du site dans « Site URL » et ajouter `…/desk/` dans « Redirect URLs ».
-4. Project Settings → API : copier « Project URL » et la clé « anon public » dans `config.js`.
-5. Créer le compte admin depuis `desk/` (onglet « Créer mon compte ») avec l'e-mail admin, **tout de suite après l'étape 2**, puis cliquer le lien de confirmation reçu par e-mail.
-6. Authentication → Providers → Email : laisser **« Confirm email » activé** (réglage par défaut).
-7. Recommandé : Authentication → Attack Protection → activer le captcha (Cloudflare Turnstile, gratuit), et activer la protection contre les mots de passe divulgués.
-
-La sécurité repose sur les règles RLS de `schema.sql` : un utilisateur ne lit que son accès et son profil, seuls les admins voient et modifient la liste des acheteurs.
-Le bloc 8 (« sécurité renforcée ») ajoute : admin reconnu seulement si son e-mail est confirmé, création de compte refusée par le serveur sans achat, profil limité aux réglages, tailles maximales, anti-spam sur la rétractation et la liste d'attente. Le fichier peut être relancé sans risque.
-
-**Ne jamais** mettre la clé `service_role` dans `config.js` ni dans le code : seule la clé « anon public » va dans le site.
-
-**Limite connue :** le code du desk est public sur GitHub Pages. La connexion protège les comptes et les données, pas le code lui-même. Étape suivante prévue : servir le desk depuis un stockage privé après connexion.
-
-## Avertissement
-
-Pumpr est un outil d'organisation et d'analyse. Ce n'est pas un conseil en investissement. Le trading comporte un risque élevé de perte en capital.
+Mettre `FOUNDER_PHASE = false` dans `desk/gate.js`, choisir un prestataire de paiement, compléter les passages jaunes des mentions légales et rouvrir la page de rétractation.

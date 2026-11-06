@@ -209,3 +209,13 @@ window.PUMPR_RX.en = [
 ];
 window.PUMPR_RX["en-GB"] = [];
 })();
+
+/* avis via Tally (06/11/2026) */
+(() => {
+const D = window.PUMPR_DICT = window.PUMPR_DICT || {};
+const add = (l, o) => { D[l] = Object.assign(D[l] || {}, o); };
+const T = { "Fondateur": "Founder", "Accès fondateur": "Founder access", "Donner mon avis": "Give my feedback", "Fermer": "Close", "Plus tard": "Later",
+ "Quelques questions rapides, environ une minute. Ton accès fondateur reste gratuit et tes réponses guident ce qu'on construit.": "A few quick questions, about a minute. Your founder access stays free and your answers guide what we build.",
+ "Un bug, une idée, ou tu n'accroches pas : ton retour compte autant qu'un compliment, et ton accès reste ouvert.": "A bug, an idea, or you're not hooked: your feedback counts as much as a compliment, and your access stays open." };
+add("en", T); add("en-GB", T);
+})();

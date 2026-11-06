@@ -1,7 +1,6 @@
-/* Pumpr · accès au desk : connexion → vérification de l'achat → configuration → desk */
+/* Pumpr · accès au desk : configuration → engagement fondateur → desk (la connexion sera assurée par Cloudflare Access) */
 (() => {
   "use strict";
-  const P = window.Pumpr;
   const $ = s => document.querySelector(s);
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const ls = {
@@ -23,17 +22,10 @@
     <div class="wz-tip">Tu n'aimes pas le desk ? Dis-le-nous franchement, c'est aussi précieux. Le bouton « Mon avis · Je n'accroche pas » est dans le menu, et ton accès reste ouvert.</div>
     <label class="wz-mod" style="cursor:pointer"><span>Je suis d'accord pour donner mon avis</span><input type="checkbox" id="wEng" ${on ? "checked" : ""}></label></div>`;
 
-  let me = null, profile = null, admin = false, started = false, adminMode = false;
-  /* Admin sans compte acheteur (mode démo) : sa configuration reste dans ce navigateur */
-  /* Aperçu fondateur (admin) : desk/?fondateur=1, avec &jour=7, 15 ou 30 pour voir les questions. L'avis apparaît dans l'onglet Avis de l'admin, marqué aperçu. */
-  const PREV = /[?&]fondateur=1/.test(location.search);
-  const PREV_JOUR = +((location.search.match(/[?&]jour=(\d+)/) || [])[1] || 0);
-  const AKEY = PREV ? "pumpr-admin-preview" : "pumpr-admin-profile";
-  const sendFb = a => PREV ? P.sendPreviewFeedback(a) : P.sendFeedback(a);
-  const saveProf = async p => {
-    if (adminMode) { ls.set(AKEY, Object.assign({}, ls.get(AKEY, {}) || {}, p)); return { ok: true }; }
-    return P.saveProfile(p);
-  };
+  /* Pas de compte dans Pumpr : la connexion sera assurée par Cloudflare Access. Les réglages restent dans ce navigateur. */
+  let me = { email: "" }, profile = null, started = false;
+  const PKEY = "pumpr-profile-local";
+  const saveProf = async p => { ls.set(PKEY, Object.assign({}, ls.get(PKEY, {}) || {}, p)); return { ok: true }; };
 
   /* ---------- squelette ---------- */
   document.body.classList.add("locked");
@@ -42,77 +34,10 @@
   gate.innerHTML = `<div class="g-top"><a class="pz-logo" href="../"><i>P</i>Pumpr</a><span class="g-topr"><button data-lang-btn></button><a href="../">← Retour au site</a></span></div><div class="g-mid" id="gMid"></div>`;
   if (window.PumprLang) window.PumprLang.refresh();
   document.body.appendChild(gate);
-  if (P.mode === "demo") {
-    const d = document.createElement("div"); d.className = "pz-demo"; d.id = "demoBadge";
-    d.textContent = "Mode démo : comptes simulés dans ce navigateur, pas encore sécurisés.";
-    document.body.appendChild(d);
-  }
   const mid = $("#gMid");
   const view = html => { mid.innerHTML = html; const f = mid.querySelector("input,button"); if (f && matchMedia("(pointer:fine)").matches) setTimeout(() => f.focus(), 60); };
   const loading = t => view(`<div class="g-loading"><div class="g-spin"></div>${esc(t || "Chargement…")}</div>`);
   const busy = (btn, on, label) => { if (!btn) return; btn.disabled = on; if (label) btn.dataset.l = btn.dataset.l || btn.textContent; btn.textContent = on ? (label || "…") : (btn.dataset.l || btn.textContent); };
-
-  /* ---------- connexion / création de compte ---------- */
-  function authView(tab, msg) {
-    tab = tab || "in";
-    view(`<div class="pz-card g-card">
-      <h1>${tab === "in" ? "Se connecter pour accéder au desk" : "Créer mon compte"}</h1>
-      <p class="sub">${tab === "in" ? "Connecte-toi avec le compte lié à ton achat." : "Utilise la même adresse e-mail que pour ton achat. Sans achat, la création est refusée."}</p>
-      <div class="g-tabs" role="tablist"><button type="button" role="tab" aria-selected="${tab === "in"}" data-tab="in">Connexion</button><button type="button" role="tab" aria-selected="${tab === "up"}" data-tab="up">Créer mon compte</button></div>
-      <form class="g-form" id="authF" novalidate>
-        <label class="pz-label">Adresse e-mail${tab === "up" ? " (celle de ton achat)" : ""}<input class="pz-field" id="aMail" type="email" autocomplete="email" required></label>
-        <label class="pz-label">Mot de passe<input class="pz-field" id="aPw" type="password" autocomplete="${tab === "in" ? "current-password" : "new-password"}" minlength="8" required></label>
-        ${tab === "up" ? `<label class="pz-label">Confirme le mot de passe<input class="pz-field" id="aPw2" type="password" autocomplete="new-password" minlength="8" required></label>
-        <label class="g-check"><input type="checkbox" id="aCgu"><span>J'accepte les <a href="../mentions-legales.html#cgv" target="_blank" rel="noopener">conditions de vente et d'utilisation</a> et la <a href="../mentions-legales.html#confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>. Je comprends que Pumpr n'est pas un conseil en investissement.</span></label>` : ""}
-        <div class="${msg && msg.ok ? "pz-ok" : "pz-err"}" id="aErr" role="alert">${msg ? esc(msg.text) : ""}</div>
-        <button class="pz-btn pz-btn-main" type="submit" id="aGo">${tab === "in" ? "Se connecter" : "Créer mon compte"}</button>
-        ${tab === "in" ? `<button class="g-link" type="button" id="aForgot">Mot de passe oublié ?</button>` : ""}
-      </form>
-      <p class="pz-note" style="margin:20px 0 0">Pas encore acheté ? <a href="../" style="color:var(--pz-text)">Découvrir Pumpr</a> · <a href="https://tally.so/r/rD5KDR" target="_blank" rel="noopener" style="color:var(--pz-text)">Devenir testeur</a>${P.mode === "demo" ? ` · <a href="../admin/" style="color:var(--pz-muted)">Accès administrateur</a>` : ""}</p>
-      ${P.mode === "demo" ? `<div class="g-help"><b>Mode démo.</b> Pour tester : ajoute un e-mail acheteur dans <a href="../admin/">l'espace admin</a>, puis crée ton compte ici avec cet e-mail.</div>` : ""}
-    </div>`);
-    mid.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => authView(b.dataset.tab)));
-    const err = $("#aErr"), go = $("#aGo");
-    $("#authF").addEventListener("submit", async e => {
-      e.preventDefault(); err.className = "pz-err"; err.textContent = "";
-      const mail = $("#aMail").value, pw = $("#aPw").value;
-      if (tab === "up" && pw !== $("#aPw2").value) { err.textContent = "Les deux mots de passe ne sont pas identiques."; return; }
-      if (tab === "up" && !$("#aCgu").checked) { err.textContent = "Coche la case pour accepter les conditions."; return; }
-      busy(go, true, tab === "in" ? "Connexion…" : "Vérification de l'achat…");
-      try {
-        const r = tab === "in" ? await P.signIn(mail, pw) : await P.signUp(mail, pw);
-        if (!r.ok) { err.textContent = r.error; busy(go, false); return; }
-        if (r.needsConfirm) { authView("in", { ok: true, text: "Compte créé. Ouvre l'e-mail de confirmation que tu viens de recevoir, puis connecte-toi." }); return; }
-        route();
-      } catch (x) { err.textContent = x.message || "Erreur de connexion."; busy(go, false); }
-    });
-    const fg = $("#aForgot");
-    if (fg) fg.addEventListener("click", async () => {
-      err.className = "pz-err"; err.textContent = "";
-      const r = await P.resetPassword($("#aMail").value);
-      if (r.ok) { err.className = "pz-ok"; err.textContent = "Si un compte existe, un lien pour changer ton mot de passe vient d'être envoyé."; }
-      else err.textContent = r.error;
-    });
-  }
-
-  function recoveryView() {
-    view(`<div class="pz-card g-card"><h1>Nouveau mot de passe</h1><p class="sub">Choisis un nouveau mot de passe pour ton compte.</p>
-      <form class="g-form" id="rcF"><label class="pz-label">Nouveau mot de passe<input class="pz-field" id="rcPw" type="password" autocomplete="new-password" minlength="8"></label>
-      <div class="pz-err" id="rcErr" role="alert"></div><button class="pz-btn pz-btn-main" type="submit">Enregistrer</button></form></div>`);
-    $("#rcF").addEventListener("submit", async e => {
-      e.preventDefault(); const r = await P.updatePassword($("#rcPw").value);
-      if (!r.ok) { $("#rcErr").textContent = r.error; return; }
-      history.replaceState(null, "", location.pathname); route();
-    });
-  }
-
-  function noAccessView() {
-    view(`<div class="pz-card g-card"><div class="g-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-      <h1>Aucun achat associé</h1>
-      <p class="sub">Le compte <b style="color:var(--pz-text)">${esc(me.email)}</b> n'a pas accès au desk : aucun achat n'est lié à cette adresse, ou l'accès a été retiré.</p>
-      <div class="g-row"><a class="pz-btn pz-btn-main" href="../">Acheter Pumpr</a><button class="pz-btn" type="button" id="naOut">Changer de compte</button></div></div>`);
-    $("#naOut").addEventListener("click", async () => { await P.signOut(); me = null; authView("in"); });
-  }
 
   /* ---------- configuration du desk ---------- */
   function currentConfig() {
@@ -142,7 +67,7 @@
   function wizard(editing) {
     const c = currentConfig();
     let step = 0;
-    const withEng = !editing && FOUNDER_PHASE && (!adminMode || PREV);
+    const withEng = !editing && FOUNDER_PHASE;
     const TOTAL = withEng ? 5 : 4;
     const draw = () => {
       const steps = [
@@ -226,23 +151,20 @@
   function openDesk() {
     if (!started) { started = true; window.__pumprSyncReady = true; if (typeof window.startDesk === "function") window.startDesk(); mountAccount(); }
     gate.classList.add("gone"); document.body.classList.remove("locked"); filmBadge(); mountMobile(); mountGuide(); mountMenu(); setTimeout(mountAvis, 3000);
-    const db = $("#demoBadge"); if (db) setTimeout(() => db.remove(), matchMedia("(max-width:700px)").matches ? 3500 : 6000);
-    if (!adminMode) P.touch().catch(() => {});
   }
 
   function mountAccount() {
     const top = document.querySelector(".top-r"); if (!top || $("#acctWrap")) return;
-    const name = (profile && profile.nom) || me.email.split("@")[0];
+    const name = (profile && profile.nom) || "Fondateur";
     const w = document.createElement("div"); w.className = "acct"; w.id = "acctWrap";
     w.innerHTML = `<button class="btn acct-btn" type="button" id="acctBtn" aria-haspopup="menu" aria-expanded="false"><span class="acct-av">${esc(name.slice(0, 1).toUpperCase())}</span><span class="acct-name">${esc(name)}</span></button>
-      <div class="acct-menu" id="acctMenu" role="menu"><div class="who"><b>${esc(name)}</b><small>${PREV ? "Aperçu fondateur (admin)" : adminMode ? "Connecté en administrateur" : esc(me.email)}</small></div>
+      <div class="acct-menu" id="acctMenu" role="menu"><div class="who"><b>${esc(name)}</b><small>Accès fondateur</small></div>
       <button type="button" role="menuitem" id="mCfg">Modifier ma configuration</button>
       <button type="button" role="menuitem" id="mFilm">${filming() ? "Quitter le mode tournage" : "Mode tournage (données de démo)"}</button>
-      ${admin ? `<a role="menuitem" href="../admin/">Espace admin</a>` : ""}
       <a role="menuitem" href="../">Site Pumpr</a>
-      ${adminMode && !PREV ? "" : `<button type="button" role="menuitem" id="mFb">Mon avis · Je n'accroche pas</button>`}
+      <button type="button" role="menuitem" id="mFb">Mon avis · Je n'accroche pas</button>
       <button type="button" role="menuitem" id="mLang">Langue · Language</button>
-      <button type="button" role="menuitem" class="out" id="mOut">Se déconnecter</button></div>`;
+      </div>`;
     top.appendChild(w);
     const mf = $("#mFb"); if (mf) mf.addEventListener("click", openFeedback);
     const ml = $("#mLang"); if (ml) ml.addEventListener("click", () => { if (window.PumprLang) window.PumprLang.open(); });
@@ -250,7 +172,7 @@
     if (app && !$("#dFoot")) {
       const f = document.createElement("footer"); f.id = "dFoot"; f.className = "dfoot";
       f.innerHTML = `<p>Pumpr est un outil d'organisation et d'analyse, pas un conseil en investissement. Il ne passe aucun ordre. Le trading comporte un risque élevé de perte en capital.</p>
-        <p>Cours crypto : Binance · Graphiques, actualités et calendrier économique : TradingView · <a href="../mentions-legales.html">Mentions légales</a> · <a href="../mentions-legales.html#cgv">CGV</a> · <a href="../mentions-legales.html#confidentialite">Confidentialité</a> · <a href="../retractation.html">Se rétracter du contrat</a></p>`;
+        <p>Cours crypto : Binance · Graphiques, actualités et calendrier économique : TradingView · <a href="../mentions-legales.html">Mentions légales</a> · <a href="../mentions-legales.html#confidentialite">Confidentialité</a></p>`;
       app.appendChild(f);
     }
     const btn = $("#acctBtn"), menu = $("#acctMenu");
@@ -260,7 +182,6 @@
     document.addEventListener("keydown", e => { if (e.key === "Escape") set(false); });
     $("#mCfg").addEventListener("click", () => { set(false); gate.classList.remove("gone"); document.body.classList.add("locked"); wizard(true); });
     $("#mFilm").addEventListener("click", () => { set(false); toggleFilming(); });
-    $("#mOut").addEventListener("click", async () => { if (adminMode) P.lockDemoAdmin(); else await P.signOut(); location.reload(); });
   }
 
   /* ---------- téléphone : navigation du bas, bouton +, trades repliables ---------- */
@@ -337,7 +258,7 @@
   function drawMenu() {
     const m = $("#sideMenu");
     const vis = MODS_MENU.filter(([id]) => { const s = document.getElementById("m-" + id); return s && !s.hidden; });
-    const name = (profile && profile.nom) || (me && me.email.split("@")[0]) || "";
+    const name = (profile && profile.nom) || "Fondateur";
     m.innerHTML = `<div class="sm-head"><span class="pz-logo"><i>P</i>Pumpr</span><button class="sm-x" type="button" aria-label="Fermer le menu">${ICON('<path d="M6 6l12 12M18 6 6 18"/>')}</button></div>
       <div class="sm-label">Ouvrir en grand écran</div>
       <div class="sm-list">${vis.map(([id, label, d]) => `<button type="button" class="sm-item" data-focus="${id}"><span class="sm-dot">${ICON(d)}</span><span>${label}</span><span class="sm-arrow" aria-hidden="true">⤢</span></button>`).join("")}</div>
@@ -349,12 +270,12 @@
         <button type="button" class="sm-item" data-act="set"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>')}</span><span>Réglages</span></button>
         <button type="button" class="sm-item" data-act="cfg"><span class="sm-dot">${ICON('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}</span><span>Modifier ma configuration</span></button>
         <button type="button" class="sm-item" data-act="film"><span class="sm-dot">${ICON('<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/>')}</span><span>${filming() ? "Quitter le mode tournage" : "Mode tournage"}</span></button>
-        ${adminMode && !PREV ? "" : `<button type="button" class="sm-item" data-act="fb"><span class="sm-dot">${ICON('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}</span><span>Mon avis · Je n'accroche pas</span></button>`}
+        ${`<button type="button" class="sm-item" data-act="fb"><span class="sm-dot">${ICON('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}</span><span>Mon avis · Je n'accroche pas</span></button>`}
         <button type="button" class="sm-item" data-act="lang"><span class="sm-dot">${ICON('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/>')}</span><span>Langue · Language</span></button>
       </div>
       <div class="sm-foot">
-        <div class="sm-who"><b>${esc(name)}</b><small>${adminMode ? "Administrateur" : esc(me ? me.email : "")}</small></div>
-        ${admin ? `<a href="../admin/">Espace admin</a>` : ""}<a href="../">Site Pumpr</a><button type="button" data-act="out">Se déconnecter</button>
+        <div class="sm-who"><b>${esc(name)}</b><small>Accès fondateur</small></div>
+        <a href="../">Site Pumpr</a>
       </div>`;
   }
   function mountMenu() {
@@ -381,7 +302,6 @@
       else if (act === "film") toggleFilming();
       else if (act === "fb") openFeedback();
       else if (act === "lang") { if (window.PumprLang) window.PumprLang.open(); }
-      else if (act === "out") { if (adminMode) P.lockDemoAdmin(); else await P.signOut(); location.reload(); }
     });
     document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if ($("#sideMenu").classList.contains("open")) closeMenu(); else if (focused && !document.querySelector(".drawer.open")) closeFocus(); });
   }
@@ -485,61 +405,29 @@
     });
   }
 
+  /* Les avis se donnent dans un formulaire Tally (rien n'est envoyé depuis le desk). */
+  const FEEDBACK_URL = "https://tally.so/r/rD5KDR";
   const AVIS_JOURS = [7, 15, 30];
-  const AVIS_Q = {
-    7: { t: "Ta première semaine sur Pumpr", q: [
-      { k: "note", l: "Ta note sur 5", type: "chips", o: ["1", "2", "3", "4", "5"], req: true },
-      { k: "manque", l: "Qu'est-ce qui te manque le plus ?", type: "text" },
-      { k: "paierais", l: "Tu paierais pour ce desk ?", type: "chips", o: ["Oui", "Peut-être", "Non"] }] },
-    15: { t: "Deux semaines déjà", q: [
-      { k: "utilise", l: "Ce que tu utilises le plus", type: "text", req: true },
-      { k: "enerve", l: "Ce qui t'énerve ou te ralentit", type: "text" }] },
-    30: { t: "Un mois ensemble", q: [
-      { k: "continuer", l: "Tu continuerais à l'utiliser ?", type: "chips", o: ["Oui", "Peut-être", "Non"], req: true },
-      { k: "prix", l: "Quel prix par mois te paraîtrait juste ?", type: "text" }] }
-  };
   const today = () => new Date().toLocaleDateString("sv");
 
-  /* fenêtre de questions : o = { title, intro, questions, later, closable, onSend } */
+  /* fenêtre simple : un bouton qui ouvre le formulaire d'avis. o = { title, intro, url, later, closable, onGo, onLater } */
   function avisModal(o) {
     const ov = document.createElement("div"); ov.className = "av-ov pz";
-    ov.innerHTML = `<div class="av-box" role="dialog" aria-modal="true" aria-labelledby="avT"><h2 id="avT">${esc(o.title)}</h2>${o.intro ? `<p class="sub" style="margin:0 0 4px">${esc(o.intro)}</p>` : ""}
-      <div id="avQ">${o.questions.map(q => `<div class="pz-label" data-k="${q.k}" ${q.when ? `data-wk="${q.when[0]}" data-wv="${esc(q.when[1])}" hidden` : ""}>${esc(q.l)}${q.type === "chips"
-        ? `<div class="wz-chips">${q.o.map(v => `<button type="button" aria-pressed="false" data-v="${esc(v)}">${esc(v)}</button>`).join("")}</div>`
-        : `<textarea class="pz-field av-t" maxlength="500" rows="2"></textarea>`}</div>`).join("")}</div>
-      <div class="pz-err" id="avErr" role="alert"></div>
-      <div class="av-nav">${o.later ? `<button class="pz-btn" type="button" id="avLater">Plus tard</button>` : o.closable ? `<button class="pz-btn" type="button" id="avClose">Fermer</button>` : "<span></span>"}<button class="pz-btn pz-btn-main" type="button" id="avSend">Envoyer</button></div></div>`;
+    ov.innerHTML = `<div class="av-box" role="dialog" aria-modal="true" aria-labelledby="avT"><h2 id="avT">${esc(o.title)}</h2><p class="sub" style="margin:0 0 4px">${esc(o.intro)}</p>
+      <div class="av-nav">${o.later ? `<button class="pz-btn" type="button" id="avLater">Plus tard</button>` : `<button class="pz-btn" type="button" id="avClose">Fermer</button>`}<a class="pz-btn pz-btn-main" id="avGo" href="${esc(o.url)}" target="_blank" rel="noopener">Donner mon avis</a></div></div>`;
     document.body.appendChild(ov);
-    const box = ov.querySelector(".av-box"), close = () => ov.remove();
-    const val = k => { const el = ov.querySelector(`[data-k="${k}"]`); if (!el) return ""; const b = el.querySelector('[aria-pressed="true"]'); return b ? b.dataset.v : (el.querySelector("textarea") ? el.querySelector("textarea").value.trim() : ""); };
-    const sync = () => ov.querySelectorAll("[data-wk]").forEach(el => { el.hidden = val(el.dataset.wk) !== el.dataset.wv; });
-    ov.addEventListener("click", e => {
-      const b = e.target.closest(".wz-chips button"); if (!b) return;
-      b.parentNode.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); sync();
-    });
+    const close = () => ov.remove();
     const l = $("#avLater"); if (l) l.addEventListener("click", () => { close(); if (o.onLater) o.onLater(); });
     const c = $("#avClose"); if (c) c.addEventListener("click", close);
-    if (o.closable) ov.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
-    $("#avSend").addEventListener("click", async () => {
-      const ans = {};
-      for (const q of o.questions) {
-        const el = ov.querySelector(`[data-k="${q.k}"]`); if (el.hidden) continue;
-        const v = val(q.k); if (q.req && !v) { $("#avErr").textContent = "Réponds à « " + q.l + " » pour continuer."; return; }
-        if (v) ans[q.k] = v;
-      }
-      const b = $("#avSend"); busy(b, true, "Envoi…");
-      const r = await o.onSend(ans);
-      if (!r.ok) { $("#avErr").textContent = r.error || "Envoi impossible, réessaie."; busy(b, false); return; }
-      box.innerHTML = `<h2>Merci 🙏</h2><p class="sub" style="margin:0">${esc(o.thanks || "Ton avis compte vraiment.")}</p><div class="av-nav"><span></span><button class="pz-btn pz-btn-main" type="button" id="avOk">Fermer</button></div>`;
-      $("#avOk").addEventListener("click", close);
-    });
-    const f = ov.querySelector("button[aria-pressed],textarea"); if (f) setTimeout(() => f.focus(), 60);
+    $("#avGo").addEventListener("click", () => { if (o.onGo) o.onGo(); setTimeout(close, 200); });
+    ov.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+    setTimeout(() => $("#avGo").focus(), 60);
     return ov;
   }
 
-  /* questions des jours 7, 15, 30 (une fenêtre au centre, un seul « Plus tard » par palier) */
+  /* jours 7, 15, 30 : un rappel au centre, un seul « Plus tard » par palier */
   function mountAvis() {
-    if (!FOUNDER_PHASE || (adminMode && !PREV) || filming() || !profile || document.querySelector(".av-ov")) return;
+    if (!FOUNDER_PHASE || filming() || !profile || document.querySelector(".av-ov")) return;
     const cfg = profile.config || {}, f = cfg.fondateur; if (!f || !f.le) return;
     const days = Math.floor((Date.now() - new Date(f.le)) / 864e5), av = cfg.avis || {}, done = av.done || [], later = av.later || {};
     const m = AVIS_JOURS.filter(j => days >= j && !done.includes(j)).pop(); if (!m) return;
@@ -548,59 +436,31 @@
       const config = Object.assign({}, profile.config || {}, { avis: Object.assign({ done: [], later: {} }, (profile.config || {}).avis || {}, patch) });
       profile = Object.assign({}, profile, { config }); return saveProf({ config });
     };
-    const Q = AVIS_Q[m];
     avisModal({
-      title: Q.t, intro: "Quelques questions rapides, environ une minute.", questions: Q.q, later: !later[m],
-      thanks: "Ton accès fondateur reste gratuit. Tes réponses guident ce qu'on construit.",
+      title: "C'est le moment de ton avis (jour " + m + ")", intro: "Quelques questions rapides, environ une minute. Ton accès fondateur reste gratuit et tes réponses guident ce qu'on construit.",
+      url: FEEDBACK_URL + "?jour=" + m, later: !later[m],
       onLater: () => save({ later: Object.assign({}, later, { [m]: today() }) }),
-      onSend: async ans => {
-        const r = await sendFb({ type: "jour" + m, jour: m, reponses: ans });
-        if (r.ok) save({ done: AVIS_JOURS.filter(j => j <= m).concat(done).filter((x, i, a) => a.indexOf(x) === i) });
-        return r;
-      }
+      onGo: () => save({ done: AVIS_JOURS.filter(j => j <= m).concat(done).filter((x, i, a) => a.indexOf(x) === i) })
     });
   }
 
   /* bouton du menu : « Mon avis · Je n'accroche pas » */
   function openFeedback() {
-    if (adminMode && !PREV) return;
     avisModal({
       title: "Dis-nous franchement", closable: true,
       intro: "Un bug, une idée, ou tu n'accroches pas : ton retour compte autant qu'un compliment, et ton accès reste ouvert.",
-      thanks: "Merci, ton avis compte autant que les autres. Ton accès reste ouvert si tu veux revenir.",
-      questions: [
-        { k: "type", l: "C'est quoi ?", type: "chips", o: ["Je n'accroche pas", "Il me manque une fonction", "J'ai trouvé un bug", "J'ai une idée"], req: true },
-        { k: "raison", l: "Pourquoi ?", type: "chips", o: ["C'est trop compliqué", "J'utilise déjà autre chose", "Je ne trade pas en ce moment", "Il manque ce dont j'ai besoin", "Autre"], when: ["type", "Je n'accroche pas"] },
-        { k: "detail", l: "Dis-nous en plus (facultatif)", type: "text" }],
-      onSend: ans => sendFb({ type: ans.type === "Je n'accroche pas" ? "accroche_pas" : "libre", reponses: ans })
+      url: FEEDBACK_URL + "?type=libre"
     });
   }
 
   /* ---------- aiguillage ---------- */
-  async function route() {
-    loading("Vérification de ton accès…");
-    try {
-      me = await P.session();
-      admin = await P.isAdmin();
-      if (!me && admin && P.mode === "demo") {
-        /* admin déverrouillé : accès direct au desk, sans compte acheteur */
-        adminMode = true; me = { email: "admin", id: "admin" }; profile = ls.get(AKEY, null);
-        if (PREV) { if (/[?&]reset=1/.test(location.search)) { ls.del(AKEY); profile = null; } if (profile && profile.config && profile.config.fondateur && PREV_JOUR) profile.config.fondateur.le = new Date(Date.now() - PREV_JOUR * 864e5).toISOString(); }
-      } else {
-        if (!me) return authView("in");
-        if (!admin && !(await P.access())) return noAccessView();
-        profile = await P.profile();
-      }
-      if (!profile || !profile.configure) return wizard(false);
-      applyLocal(Object.assign(currentConfig(), profile.config || {}, { nom: profile.nom }), false);
-      if (FOUNDER_PHASE && (!adminMode || PREV) && !(profile.config || {}).fondateur) return engageView();
-      openDesk();
-    } catch (e) {
-      view(`<div class="pz-card g-card"><h1>Connexion impossible</h1><p class="sub">${esc(e.message || "Le service de connexion ne répond pas.")}</p><button class="pz-btn pz-btn-main" type="button" id="gRetry">Réessayer</button></div>`);
-      $("#gRetry").addEventListener("click", route);
-    }
+  function route() {
+    profile = ls.get(PKEY, null);
+    if (!profile || !profile.configure) return wizard(false);
+    applyLocal(Object.assign(currentConfig(), profile.config || {}, { nom: profile.nom }), false);
+    if (FOUNDER_PHASE && !(profile.config || {}).fondateur) return engageView();
+    openDesk();
   }
   loading();
-  P.onRecovery(recoveryView).catch(() => {});
-  if (/type=recovery/.test(location.hash)) recoveryView(); else route();
+  route();
 })();

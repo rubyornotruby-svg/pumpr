@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://data-api.binance.vision wss://data-stream.binance.vision; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://data-api.binance.vision wss://data-stream.binance.vision; frame-src 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pumpr · Ton desk de trading</title>
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
@@ -24,10 +24,10 @@
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Pumpr : journal de trades, calcul du risque, graphiques et cours crypto en direct dans un seul desk. Gratuit pour les fondateurs.">
-<script src="assets/i18n.js?v=202611061716" data-picker="1"></script>
-<script src="assets/i18n-site.js?v=202611061716"></script>
-<link rel="stylesheet" href="assets/fonts.css?v=202611061716">
-<link rel="stylesheet" href="assets/pumpr.css?v=202611061716">
+<script src="assets/i18n.js?v=202611061735" data-picker="1"></script>
+<script src="assets/i18n-site.js?v=202611061735"></script>
+<link rel="stylesheet" href="assets/fonts.css?v=202611061735">
+<link rel="stylesheet" href="assets/pumpr.css?v=202611061735">
 <style>
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--pz-bg);color:var(--pz-text);font:500 16px/1.6 var(--pz-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -38,10 +38,8 @@ a{color:inherit}
  radial-gradient(35% 30% at 15% 20%,rgba(198,255,61,.14),transparent 70%),
  radial-gradient(30% 25% at 60% 60%,rgba(255,79,216,.10),transparent 70%)}
 .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 80%)}
-main,header,footer,.annonce{position:relative;z-index:1}
+main,header,footer{position:relative;z-index:1}
 
-.annonce{background:var(--pz-lime);color:var(--pz-lime-ink);text-align:center;font:700 14px/1.4 var(--pz-body);padding:9px 16px}
-.annonce[hidden]{display:none}
 .nav{position:sticky;top:0;z-index:50;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
 .nav.scrolled{background:rgba(6,7,12,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom-color:var(--pz-line)}
 .nav .wrap{display:flex;align-items:center;gap:18px;height:72px}
@@ -185,7 +183,6 @@ footer nav a:hover{color:var(--pz-text)}
 <div class="glow" aria-hidden="true"></div>
 <div class="grid-bg" aria-hidden="true"></div>
 
-<div class="annonce" id="annonce" hidden></div>
 
 <header class="nav" id="nav">
   <div class="wrap">
@@ -344,7 +341,7 @@ footer nav a:hover{color:var(--pz-text)}
   <div class="wrap">
     <div class="top">
       <a class="pz-logo" href="#top"><i>P</i>Pumpr</a>
-      <nav aria-label="Liens"><a href="desk/">Mon desk</a><a href="decouvrir.html">Le desk en images</a><a href="#faq">FAQ</a><a href="mentions-legales.html">Mentions légales</a><a href="mentions-legales.html#cgv">CGV</a><a href="mentions-legales.html#confidentialite">Confidentialité</a><a href="retractation.html">Se rétracter</a><a href="admin/">Espace admin</a></nav>
+      <nav aria-label="Liens"><a href="desk/">Mon desk</a><a href="decouvrir.html">Le desk en images</a><a href="#faq">FAQ</a><a href="mentions-legales.html">Mentions légales</a><a href="mentions-legales.html#cgv">CGV</a><a href="mentions-legales.html#confidentialite">Confidentialité</a></nav>
     </div>
     <p class="disclaimer">Pumpr est un outil d'organisation et d'analyse de tes trades. Il ne constitue pas un conseil en investissement ni une recommandation d'achat ou de vente, ne passe aucun ordre et n'a accès à aucun compte de courtage. Le trading, en particulier sur les cryptomonnaies, comporte un risque élevé de perte en capital : n'investis jamais de l'argent dont tu as besoin. Les performances passées ne préjugent pas des performances futures.</p>
     <p class="disclaimer">Cours crypto : <a href="https://www.binance.com" target="_blank" rel="noopener noreferrer">Binance</a>. Graphiques, actualités et calendrier économique : <a href="https://www.tradingview.com" target="_blank" rel="noopener noreferrer">TradingView</a>. Pumpr n'est affilié ni à Binance ni à TradingView. Les noms de cryptomonnaies sont cités à titre informatif. © Pumpr</p>
@@ -352,8 +349,6 @@ footer nav a:hover{color:var(--pz-text)}
 </footer>
 
 
-<script src="config.js?v=202611061716"></script>
-<script src="assets/pumpr.js?v=202611061716"></script>
 <script>
 (()=>{
 "use strict";
@@ -392,11 +387,6 @@ function draw(){const D=Math.min(devicePixelRatio||1,2),w=cv.clientWidth,h=cv.cl
 draw();addEventListener("resize",draw);
 if(!reduce)setInterval(()=>{if(document.hidden)return;const l=candles[candles.length-1];l.c+=(Math.random()-.47)*1.1;l.h=Math.max(l.h,l.c);l.l=Math.min(l.l,l.c);if(Math.random()<.18){candles.shift();const o=l.c;candles.push({o,c:o,h:o,l:o})}draw()},700);
 
-/* réglages du site (prix, lien d'achat, annonce) */
-let site={prix:"",lien_achat:"",annonce:"",ventes_ouvertes:false};
-Pumpr.site().then(s=>{site=s;
-  if(s.annonce){const b=$("#annonce");b.textContent=s.annonce;b.hidden=false}
-}).catch(()=>{});
 })();
 </script>
 </body>
