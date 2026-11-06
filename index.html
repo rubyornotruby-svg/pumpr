@@ -24,10 +24,10 @@
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Pumpr : journal de trades, calcul du risque, graphiques et cours crypto en direct dans un seul desk. Gratuit pour les fondateurs.">
-<script src="assets/i18n.js?v=202611061711" data-picker="1"></script>
-<script src="assets/i18n-site.js?v=202611061711"></script>
-<link rel="stylesheet" href="assets/fonts.css?v=202611061711">
-<link rel="stylesheet" href="assets/pumpr.css?v=202611061711">
+<script src="assets/i18n.js?v=202611061713" data-picker="1"></script>
+<script src="assets/i18n-site.js?v=202611061713"></script>
+<link rel="stylesheet" href="assets/fonts.css?v=202611061713">
+<link rel="stylesheet" href="assets/pumpr.css?v=202611061713">
 <style>
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--pz-bg);color:var(--pz-text);font:500 16px/1.6 var(--pz-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -273,10 +273,10 @@ footer nav a:hover{color:var(--pz-text)}
 
   <section id="etapes">
     <div class="wrap">
-      <div class="sec-h reveal"><div class="kicker">Comment ça marche</div><h2>De l'achat à ton premier trade noté</h2></div>
+      <div class="sec-h reveal"><div class="kicker">Comment ça marche</div><h2>De l'inscription à ton premier trade noté</h2></div>
       <div class="steps">
-        <div class="pz-card stp reveal"><h3>Tu achètes</h3><p>Un seul paiement. Tu reçois ton reçu et le lien de ton desk par e-mail.</p></div>
-        <div class="pz-card stp reveal"><h3>Tu crées ton compte</h3><p>Avec la même adresse e-mail que ton achat. Sans achat, pas de compte.</p></div>
+        <div class="pz-card stp reveal"><h3>Tu t'inscris</h3><p>Remplis le formulaire fondateur. C'est gratuit, sans carte bancaire.</p></div>
+        <div class="pz-card stp reveal"><h3>Tu reçois ton accès</h3><p>Je t'envoie ton accès au desk par e-mail.</p></div>
         <div class="pz-card stp reveal"><h3>Tu configures</h3><p>Pseudo, marchés, risque, couleur, modules : ton desk prend forme en une minute.</p></div>
         <div class="pz-card stp reveal"><h3>Tu trades et tu notes</h3><p>Tu passes tes ordres sur ta plateforme habituelle. Pumpr t'aide à tenir ton plan.</p></div>
       </div>
@@ -319,9 +319,10 @@ footer nav a:hover{color:var(--pz-text)}
       <div class="faq">
         <details class="pz-card reveal"><summary>Est-ce que Pumpr trade à ma place ?</summary><p>Non. Pumpr ne se connecte à aucun courtier et ne passe aucun ordre. Tu gardes ta plateforme habituelle : Pumpr sert à préparer, noter et analyser tes trades.</p></details>
         <details class="pz-card reveal"><summary>Pumpr donne-t-il des conseils ou des signaux ?</summary><p>Non. Pumpr est un outil d'organisation et d'analyse, pas un conseil en investissement. Les décisions restent les tiennes.</p></details>
-        <details class="pz-card reveal"><summary>Comment j'accède au desk après l'achat ?</summary><p>Tu reçois le lien par e-mail. Tu crées ton compte avec la même adresse e-mail que celle de ton achat, puis tu configures ton desk.</p></details>
-        <details class="pz-card reveal"><summary>Où sont stockées mes données ?</summary><p>Ta configuration est liée à ton compte. Ton journal de trades reste dans ton navigateur, et tu peux l'exporter ou l'importer quand tu veux.</p></details>
-        <details class="pz-card reveal"><summary>Puis-je être remboursé ?</summary><p>Les conditions de remboursement et de rétractation sont détaillées dans les <a href="mentions-legales.html#cgv">conditions de vente</a>.</p></details>
+        <details class="pz-card reveal"><summary>C'est vraiment gratuit ?</summary><p>Oui. Pendant la phase de test, les fondateurs utilisent le desk complet sans payer et sans donner de carte bancaire. Si un abonnement arrive un jour, tu seras prévenu à l'avance.</p></details>
+        <details class="pz-card reveal"><summary>Pourquoi c'est gratuit ?</summary><p>Parce que j'ai besoin d'avis honnêtes pour améliorer Pumpr. En échange de ton accès, je te demande un retour à 7, 15 et 30 jours.</p></details>
+        <details class="pz-card reveal"><summary>Comment j'accède au desk ?</summary><p>Tu remplis le formulaire fondateur. Quand ta place est confirmée, je t'envoie ton accès par e-mail, puis tu configures ton desk.</p></details>
+        <details class="pz-card reveal"><summary>Quelles données gardez-vous ?</summary><p>Ton journal de trades et ta configuration restent dans ton navigateur : je ne les reçois pas. Je garde seulement ce que tu m'écris dans le formulaire (ton e-mail et tes avis). Tu peux exporter ou importer ton journal quand tu veux.</p></details>
         <details class="pz-card reveal"><summary>D'où viennent les cours et les graphiques ?</summary><p>Les cours crypto en direct viennent de Binance. Les graphiques, les actualités et le calendrier économique sont fournis par TradingView. Certains cours peuvent être différés ou momentanément indisponibles.</p></details>
         <details class="pz-card reveal"><summary>Sur quels appareils ça marche ?</summary><p>Dans un navigateur récent (Chrome, Edge, Safari, Firefox), sur ordinateur. Le desk s'adapte aussi aux tablettes et téléphones.</p></details>
       </div>
@@ -350,17 +351,9 @@ footer nav a:hover{color:var(--pz-text)}
   </div>
 </footer>
 
-<div class="pz-modal" id="soon" role="dialog" aria-modal="true" aria-labelledby="soonT">
-  <div class="pz-card">
-    <h3 id="soonT" style="font:800 22px/1.2 var(--pz-display);margin:0 0 10px">Les ventes ouvrent bientôt</h3>
-    <p class="pz-note" style="font-size:15px;margin:0 0 20px">Pumpr n'est pas encore en vente. Reviens très vite : le bouton d'achat s'activera ici même.</p>
-    <p class="pz-note" style="font-size:15px;margin:-8px 0 20px">En attendant, les 20 premiers testeurs ont accès en avant-première et un prix fondateur à vie.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="pz-btn pz-btn-main" href="https://tally.so/r/rD5KDR" target="_blank" rel="noopener">Devenir testeur fondateur</a><a class="pz-btn" href="desk/">J'ai déjà acheté</a><button class="pz-btn" type="button" data-close>OK</button></div>
-  </div>
-</div>
 
-<script src="config.js?v=202611061711"></script>
-<script src="assets/pumpr.js?v=202611061711"></script>
+<script src="config.js?v=202611061713"></script>
+<script src="assets/pumpr.js?v=202611061713"></script>
 <script>
 (()=>{
 "use strict";
@@ -404,11 +397,6 @@ let site={prix:"",lien_achat:"",annonce:"",ventes_ouvertes:false};
 Pumpr.site().then(s=>{site=s;
   if(s.annonce){const b=$("#annonce");b.textContent=s.annonce;b.hidden=false}
 }).catch(()=>{});
-const modal=$("#soon");
-const openSoon=()=>{modal.classList.add("open");setTimeout(()=>modal.querySelector("[data-close]").focus(),50)};
-const closeSoon=()=>modal.classList.remove("open");
-modal.addEventListener("click",e=>{if(e.target===modal||e.target.closest("[data-close]"))closeSoon()});
-addEventListener("keydown",e=>{if(e.key==="Escape")closeSoon()});
 })();
 </script>
 </body>
