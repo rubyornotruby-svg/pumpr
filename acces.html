@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pumpr · Accès fondateurs</title>
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<meta name="theme-color" content="#06070c">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/pumpr.css">
+<style>
+body{margin:0;background:var(--pz-bg);color:var(--pz-text);font:500 16px/1.65 var(--pz-body)}
+.glow{position:fixed;inset:-20% -10% auto;height:120vh;pointer-events:none;z-index:0;background:radial-gradient(40% 35% at 75% 10%,rgba(139,92,246,.28),transparent 70%),radial-gradient(35% 30% at 15% 20%,rgba(198,255,61,.14),transparent 70%),radial-gradient(30% 25% at 60% 60%,rgba(255,79,216,.10),transparent 70%)}
+.wrap{position:relative;z-index:1;width:min(520px,100% - 32px);margin:0 auto;padding:36px 0 80px}
+h1{font:800 clamp(26px,5vw,34px)/1.15 var(--pz-display);letter-spacing:-.02em;margin:48px 0 10px}
+.lead{color:#c3c9dc;margin:0 0 22px}
+.box{padding:26px;background:var(--pz-panel2)}
+.form{display:grid;gap:14px}
+.code{font:700 20px/1 var(--pz-mono);letter-spacing:.08em;text-transform:uppercase;text-align:center}
+.info{margin-top:22px;color:var(--pz-muted);font-size:14px}
+.info a{color:var(--pz-text)}
+</style>
+</head>
+<body class="pz">
+<div class="glow" aria-hidden="true"></div>
+<div class="wrap">
+  <a class="pz-logo" href="./"><i>P</i>Pumpr</a>
+  <h1>Accès fondateurs</h1>
+  <p class="lead">Entre le code personnel que tu as reçu. Il fonctionne sur 2 appareils au maximum.</p>
+  <div class="pz-card box">
+    <form class="form" id="f" novalidate>
+      <label class="pz-label">Ton code fondateur<input class="pz-field code" id="c" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX" maxlength="24"></label>
+      <div class="pz-err" id="e" role="alert"></div>
+      <button class="pz-btn pz-btn-main" type="submit" id="go">Ouvrir mon desk</button>
+    </form>
+  </div>
+  <p class="info">Pas encore de code ? <a href="https://tally.so/r/rD5KDR" target="_blank" rel="noopener">Rejoindre les fondateurs</a> · <a href="./">← Retour au site</a></p>
+</div>
+<script>
+(()=>{
+const $=s=>document.querySelector(s),f=$("#f"),e=$("#e"),go=$("#go");
+f.addEventListener("submit",async ev=>{
+  ev.preventDefault();e.textContent="";
+  const code=$("#c").value.trim();
+  if(code.replace(/[^A-Za-z0-9]/g,"").length<10){e.textContent="Entre ton code en entier.";return}
+  go.disabled=true;go.textContent="Vérification…";
+  try{
+    const r=await fetch("/api/redeem",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code})});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok&&j.ok){location.href="/desk/";return}
+    e.textContent=j.error||"Code refusé.";
+  }catch(x){e.textContent="Connexion impossible, réessaie."}
+  go.disabled=false;go.textContent="Ouvrir mon desk";
+});
+})();
+</script>
+</body>
+</html>

@@ -4,5 +4,6 @@
 wrangler.jsonc
 README.md
 bump-version.sh
-supabase
+src
 node_modules
+.wrangler
