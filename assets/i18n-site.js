@@ -543,3 +543,16 @@ const V = {
 };
 for (const l in V) { D[l] = D[l] || {}; K.forEach((k, i) => { D[l][k] = V[l][i]; }); }
 })();
+
+/* phase gratuite : bouton fondateurs, prix retiré (06/11/2026) */
+(() => {
+const D = window.PUMPR_DICT;
+const K = ["Gratuit pendant la phase de test.","Pumpr est gratuit pour les premiers fondateurs. Un abonnement viendra plus tard, et tu seras prévenu à l'avance.","Gratuit pour les fondateurs","Pendant la phase de test","Aucune carte bancaire demandée","Aucune carte bancaire","Rejoindre les fondateurs","20 places au départ. En échange, je te demande un avis honnête à 7, 15 et 30 jours.","Déjà fondateur ?","Le trading comporte un risque de perte en capital. Pumpr ne donne aucun conseil en investissement.","Pumpr : journal de trades, calcul du risque, graphiques et cours crypto en direct dans un seul desk. Gratuit pour les fondateurs."];
+const V = {
+ en: ["Free during the test phase.","Pumpr is free for the first founders. A subscription will come later, and you'll be told well in advance.","Free for founders","During the test phase","No credit card required","No credit card","Join the founders","20 spots to start. In return, I ask for honest feedback at 7, 15 and 30 days.","Already a founder?","Trading involves a risk of capital loss. Pumpr gives no investment advice.","Pumpr: trade journal, risk calculator, charts and live crypto prices in one desk. Free for founders."],
+ es: ["Gratis durante la fase de prueba.","Pumpr es gratis para los primeros fundadores. Más adelante habrá una suscripción y se te avisará con antelación.","Gratis para fundadores","Durante la fase de prueba","No se pide tarjeta bancaria","Sin tarjeta bancaria","Unirme a los fundadores","20 plazas al inicio. A cambio, te pido una opinión sincera a los 7, 15 y 30 días.","¿Ya eres fundador?","El trading conlleva un riesgo de pérdida de capital. Pumpr no ofrece asesoramiento de inversión.","Pumpr: diario de trades, cálculo de riesgo, gráficos y precios cripto en directo en un solo desk. Gratis para fundadores."],
+ he: ["חינם בשלב הבדיקה.","Pumpr חינם למייסדים הראשונים. מנוי יגיע בהמשך, ותקבל הודעה מראש.","חינם למייסדים","בשלב הבדיקה","לא נדרש כרטיס אשראי","ללא כרטיס אשראי","להצטרף למייסדים","20 מקומות בהתחלה. בתמורה, אני מבקש משוב כן אחרי 7, 15 ו-30 יום.","כבר מייסד?","המסחר כרוך בסיכון להפסד הון. Pumpr אינו נותן ייעוץ השקעות.","Pumpr: יומן עסקאות, חישוב סיכון, גרפים ומחירי קריפטו בזמן אמת בדסק אחד. חינם למייסדים."],
+ ar: ["مجاني خلال مرحلة الاختبار.","Pumpr مجاني للمؤسسين الأوائل. سيأتي اشتراك لاحقًا وسيتم إبلاغك مسبقًا.","مجاني للمؤسسين","خلال مرحلة الاختبار","لا حاجة إلى بطاقة مصرفية","بدون بطاقة مصرفية","انضم إلى المؤسسين","20 مقعدًا في البداية. في المقابل أطلب رأيًا صادقًا بعد 7 و15 و30 يومًا.","هل أنت مؤسس بالفعل؟","ينطوي التداول على مخاطر خسارة رأس المال. لا يقدّم Pumpr أي نصيحة استثمارية.","Pumpr: دفتر صفقات وحساب المخاطر ورسوم بيانية وأسعار العملات الرقمية المباشرة في مكتب واحد. مجاني للمؤسسين."]
+};
+for (const l in V) { D[l] = D[l] || {}; K.forEach((k, i) => { D[l][k] = V[l][i]; }); }
+})();
