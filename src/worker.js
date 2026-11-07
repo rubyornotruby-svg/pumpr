@@ -1,11 +1,11 @@
-/* Pumpr · accès fondateurs par code personnel, limité à 2 appareils par code.
+/* Pumpr · accès fondateurs par code personnel, limité à 3 appareils par code (téléphone, ordinateur, tablette).
    - /desk/* n'est servi qu'avec un cookie valide ; sinon redirection vers /acces.html
    - /api/redeem vérifie un code (empreinte SHA-256) et lie l'appareil au code
    - KV « CODES » : clé use:<étiquette> → { first, devices: [{ t, at, ua }] } (visible dans le tableau de bord Cloudflare)
    Supprimer une clé use:<étiquette> remet les appareils de ce code à zéro. Ajouter une étiquette à REVOKED retire l'accès. */
 import { CODES, REVOKED } from "./codes.js";
 
-const MAX_DEVICES = 2;
+const MAX_DEVICES = 3;
 const COOKIE = "pumpr_dev";
 const enc = new TextEncoder();
 const hex = buf => [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join("");
